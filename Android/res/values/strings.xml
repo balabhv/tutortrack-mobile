@@ -4,5 +4,8 @@
     <string name="app_name">TutorTrack</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="login_as_student">Student Login</string>
+    <string name="login_as_tutor">Tutor Login</string>
+    <string name="login_as_admin">Administrator Login</string>
 
 </resources>
