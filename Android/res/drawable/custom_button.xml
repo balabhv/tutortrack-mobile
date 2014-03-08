@@ -24,8 +24,8 @@
     <item android:state_pressed="true" >
         <shape>
             <gradient
-                android:startColor="#4787BA"
-                android:endColor="#4787BA"
+                android:startColor="#0273c8"
+                android:endColor="#06b2e0"
                 android:angle="270" />
             <stroke
                 android:width="2dp"
@@ -48,7 +48,7 @@
                 android:angle="90" />
             <stroke
                 android:width="2dp"
-                android:color="#CCCCCC" />
+                android:color="#026399" />
             <corners
                 android:radius="8dp" />
             <padding
