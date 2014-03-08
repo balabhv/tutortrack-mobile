@@ -7,5 +7,8 @@
     <string name="login_as_student">Student Login</string>
     <string name="login_as_tutor">Tutor Login</string>
     <string name="login_as_admin">Administrator Login</string>
+    <string name="login">Login</string>
+    <string name="username">Email:</string>
+    <string name="password">Password:</string>
 
 </resources>
