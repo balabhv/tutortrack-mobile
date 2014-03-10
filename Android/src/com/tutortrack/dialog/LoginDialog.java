@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import com.tutortrack.R;
 import com.tutortrack.activity.MainActivity;
+import com.tutortrack.api.LoginManager;
+import com.tutortrack.api.User.UserType;
 
 public class LoginDialog extends Activity {
 	
@@ -64,16 +66,19 @@ public class LoginDialog extends Activity {
 	
 	public boolean login(String user, String pass) {
 		if (key.equals(MainActivity.KEY_STUDENT)) {
-			if ((user.equals(STUDENT_EMAIL)) && (pass.equals(STUDENT_PASS)))
-				return true;
+			if ((user.equals(STUDENT_EMAIL)) && (pass.equals(STUDENT_PASS))) {
+				return LoginManager.login(user, pass, UserType.STUDENT);
+			}
 			return false;
 		} else if (key.equals(MainActivity.KEY_TUTOR)) {
-			if ((user.equals(TUTOR_EMAIL)) && (pass.equals(TUTOR_PASS)))
-				return true;
+			if ((user.equals(TUTOR_EMAIL)) && (pass.equals(TUTOR_PASS))) {
+				return LoginManager.login(user, pass, UserType.TUTOR);
+			}
 			return false;
 		} else if (key.equals(MainActivity.KEY_ADMIN)) {
-			if ((user.equals(ADMIN_EMAIL)) && (pass.equals(ADMIN_PASS)))
-				return true;
+			if ((user.equals(ADMIN_EMAIL)) && (pass.equals(ADMIN_PASS))) {
+				return LoginManager.login(user, pass, UserType.ADMINISTRATOR);
+			}
 			return false;
 		} else {
 			// shouldn't get here
