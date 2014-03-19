@@ -4,6 +4,10 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="19" />
@@ -23,8 +27,26 @@
             </intent-filter>
         </activity>
         <activity
-        android:name=".dialog.LoginDialog"
-        android:theme="@style/AppThemeDialog" />
+            android:name=".dialog.LoginDialog"
+            android:theme="@style/AppThemeDialog" />
+        <activity
+            android:name=".activity.TutorMain"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".activity.TutorAppointmentManager"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".activity.StudentAppointmentManager"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".activity.StudentMain"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".activity.TutorBrowser"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".activity.FilterCreator"
+            android:theme="@style/AppThemeDialog" />
     </application>
 
 </manifest>
