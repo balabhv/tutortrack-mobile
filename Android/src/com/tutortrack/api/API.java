@@ -11,56 +11,52 @@ import java.net.URL;
 
 import org.json.JSONObject;
 
+import com.tutortrack.api.User.UserType;
+
 public class API {
-	
+
 	public enum Location {
-		NORTH, SOUTH, ICC;
+		NORTH, SOUTH, EAST, ICC;
 	}
 
 	private static API instance = null;
-	private User currentUser;
-	
+	private static User currentUser;
+
 	public static API getInstance() {
 		if (instance == null) {
 			instance = new API();
 		}
 		return instance;
 	}
-	
+
 	public boolean createStudentSession(String email, String password) {
-		// TODO insert call to Web API
-		return false;
-	}
-	
-	public boolean createTutorSession(String email, String password) {
-		// TODO insert call to Web API
-		return false;
-	}
-	
-	public boolean createAdminSession(String email, String password) {
-		// TODO insert call to Web API
-		return false;
+		currentUser = new User();
+		currentUser.setName("Mobile U.");
+		currentUser.setEmail(email);
+		currentUser.setType(UserType.STUDENT);
+		return true;
 	}
 
-	public User getCurrentUser() {
+	public boolean createTutorSession(String email, String password) {
+		currentUser = new User();
+		currentUser.setName("Tutor U.");
+		currentUser.setEmail(email);
+		currentUser.setType(UserType.TUTOR);
+		return true;
+	}
+
+	public boolean createAdminSession(String email, String password) {
+		currentUser = new User();
+		currentUser.setName("Admin U.");
+		currentUser.setEmail(email);
+		currentUser.setType(UserType.ADMINISTRATOR);
+		return true;
+	}
+
+	public static User getCurrentUser() {
 		return currentUser;
 	}
-	
-	/**
-	 * Makes an HTTP request and for JSON-formatted data. This call is blocking,
-	 * and so functions that call this function must not be run on the UI
-	 * thread.
-	 * 
-	 * @param baseURL
-	 *            The base of the URL to which the request will be made
-	 * @param path
-	 *            The path to append to the request URL
-	 * @param parameters
-	 *            Parameters separated by ampersands (&)
-	 * @param reqType
-	 *            The request type as a string (i.e. GET or POST)
-	 * @return A String dump of a JSONObject representing the requested data
-	 */
+
 	private String makeRequest(String baseURL, String path, String parameters,
 			String reqType, JSONObject postData) {
 

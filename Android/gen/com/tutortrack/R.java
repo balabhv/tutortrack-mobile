@@ -8,6 +8,11 @@
 package com.tutortrack;
 
 public final class R {
+    public static final class array {
+        public static final int filter_type_array=0x7f070000;
+        public static final int location_array=0x7f070001;
+        public static final int test_subject_array=0x7f070002;
+    }
     public static final class attr {
     }
     public static final class color {
@@ -27,41 +32,112 @@ public final class R {
         public static final int background_gradient=0x7f020000;
         public static final int custom_button=0x7f020001;
         public static final int ic_launcher=0x7f020002;
+        public static final int listelement_bkgd=0x7f020003;
+        public static final int x_icon=0x7f020004;
     }
     public static final class id {
-        public static final int RelativeLayout1=0x7f090007;
-        public static final int Space1=0x7f090009;
-        public static final int action_settings=0x7f09000e;
-        public static final int admin_login_button=0x7f09000d;
-        public static final int buttonLayout1=0x7f09000a;
-        public static final int button_cancel=0x7f090005;
-        public static final int button_ok=0x7f090006;
-        public static final int divider=0x7f090004;
-        public static final int edittext_password=0x7f090002;
-        public static final int edittext_username=0x7f090001;
-        public static final int student_login_button=0x7f09000b;
-        public static final int textView1=0x7f090008;
-        public static final int textview_password=0x7f090003;
-        public static final int textview_username=0x7f090000;
-        public static final int tutor_login_button=0x7f09000c;
+        public static final int LinearLayout1=0x7f0a002e;
+        public static final int RelativeLayout1=0x7f0a0014;
+        public static final int RelativeLayout2=0x7f0a0032;
+        public static final int RelativeLayout3=0x7f0a0023;
+        public static final int Space1=0x7f0a0016;
+        public static final int Space2=0x7f0a0034;
+        public static final int Space3=0x7f0a0038;
+        public static final int Space4=0x7f0a0025;
+        public static final int Space5=0x7f0a0029;
+        public static final int action_settings=0x7f0a003b;
+        public static final int add_filter_button=0x7f0a0003;
+        public static final int admin_login_button=0x7f0a001a;
+        public static final int appointmentLayout=0x7f0a001b;
+        public static final int block_subjects=0x7f0a002c;
+        public static final int block_when=0x7f0a002d;
+        public static final int buttonLayout1=0x7f0a0017;
+        public static final int buttonLayout_student=0x7f0a0026;
+        public static final int buttonLayout_tutor=0x7f0a0035;
+        public static final int button_add=0x7f0a001e;
+        public static final int button_cancel=0x7f0a0012;
+        public static final int button_ok=0x7f0a0013;
+        public static final int buttonsOKCancelLayout=0x7f0a0005;
+        public static final int cancel_item=0x7f0a003a;
+        public static final int check_layout=0x7f0a000a;
+        public static final int divider=0x7f0a0007;
+        public static final int edit_item=0x7f0a0039;
+        public static final int edit_timeslot_button=0x7f0a0036;
+        public static final int edittext_password=0x7f0a0010;
+        public static final int edittext_username=0x7f0a000f;
+        public static final int filterButton=0x7f0a0031;
+        public static final int filterTextView=0x7f0a0000;
+        public static final int filter_criteria=0x7f0a000c;
+        public static final int filter_name=0x7f0a000b;
+        public static final int filter_type_spinner=0x7f0a0002;
+        public static final int filter_x=0x7f0a000d;
+        public static final int filtersLayout=0x7f0a0001;
+        public static final int filters_cancel=0x7f0a0008;
+        public static final int filters_ok=0x7f0a0009;
+        public static final int filters_scroll=0x7f0a0004;
+        public static final int filters_view=0x7f0a0006;
+        public static final int linearButtonLayout=0x7f0a0030;
+        public static final int listView1=0x7f0a002f;
+        public static final int manage_appointments_button=0x7f0a0037;
+        public static final int manage_appointments_button2=0x7f0a0028;
+        public static final int outerLayout=0x7f0a001f;
+        public static final int scrollView1=0x7f0a001c;
+        public static final int scrollqueue=0x7f0a001d;
+        public static final int student_login_button=0x7f0a0018;
+        public static final int student_login_status=0x7f0a0024;
+        public static final int student_name=0x7f0a002a;
+        public static final int subjects=0x7f0a0021;
+        public static final int textView1=0x7f0a0015;
+        public static final int textview_password=0x7f0a0011;
+        public static final int textview_username=0x7f0a000e;
+        public static final int tutor_block_name=0x7f0a002b;
+        public static final int tutor_login_button=0x7f0a0019;
+        public static final int tutor_login_status=0x7f0a0033;
+        public static final int tutor_name=0x7f0a0020;
+        public static final int view_tutors_button=0x7f0a0027;
+        public static final int when=0x7f0a0022;
     }
     public static final class layout {
-        public static final int login_dialog=0x7f030000;
-        public static final int main=0x7f030001;
+        public static final int filter_create=0x7f030000;
+        public static final int filter_element=0x7f030001;
+        public static final int login_dialog=0x7f030002;
+        public static final int main=0x7f030003;
+        public static final int manage_appointments_view=0x7f030004;
+        public static final int student_appointment_block=0x7f030005;
+        public static final int student_main=0x7f030006;
+        public static final int tutor_appointment_block=0x7f030007;
+        public static final int tutor_block=0x7f030008;
+        public static final int tutor_browser=0x7f030009;
+        public static final int tutor_main=0x7f03000a;
     }
     public static final class menu {
-        public static final int main=0x7f080000;
+        public static final int appointment_context_menu=0x7f090000;
+        public static final int main=0x7f090001;
     }
     public static final class string {
         public static final int action_settings=0x7f060001;
+        public static final int add_appointment=0x7f060002;
+        public static final int add_filter=0x7f060013;
         public static final int app_name=0x7f060000;
-        public static final int hello_world=0x7f060002;
-        public static final int login=0x7f060006;
-        public static final int login_as_admin=0x7f060005;
-        public static final int login_as_student=0x7f060003;
-        public static final int login_as_tutor=0x7f060004;
-        public static final int password=0x7f060008;
-        public static final int username=0x7f060007;
+        public static final int appointments=0x7f060003;
+        public static final int blank_desc=0x7f060015;
+        public static final int cancel_item=0x7f06000f;
+        public static final int edit_appointment=0x7f06000e;
+        public static final int edit_timeslot=0x7f060004;
+        public static final int filter=0x7f060010;
+        public static final int filter_type=0x7f060012;
+        public static final int filters=0x7f060014;
+        public static final int hello_world=0x7f060005;
+        public static final int logged_in_as=0x7f060006;
+        public static final int login=0x7f06000a;
+        public static final int login_as_admin=0x7f060009;
+        public static final int login_as_student=0x7f060007;
+        public static final int login_as_tutor=0x7f060008;
+        public static final int manage_appointments=0x7f06000b;
+        public static final int password=0x7f06000c;
+        public static final int select_one=0x7f060016;
+        public static final int username=0x7f06000d;
+        public static final int view_tutors=0x7f060011;
     }
     public static final class style {
         /** 
@@ -87,12 +163,12 @@ public final class R {
     
  API 14 theme customizations can go here. 
          */
-        public static final int AppBaseTheme=0x7f070000;
+        public static final int AppBaseTheme=0x7f080000;
         /**  Application theme. 
  All customizations that are NOT specific to a particular API-level can go here. 
          */
-        public static final int AppTheme=0x7f070001;
-        public static final int AppThemeDialog=0x7f070002;
-        public static final int ButtonText=0x7f070003;
+        public static final int AppTheme=0x7f080001;
+        public static final int AppThemeDialog=0x7f080002;
+        public static final int ButtonText=0x7f080003;
     }
 }

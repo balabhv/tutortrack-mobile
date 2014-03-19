@@ -1,6 +1,7 @@
 package com.tutortrack.dialog;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -45,9 +46,14 @@ public class LoginDialog extends Activity {
 			public void onClick(View v) {
 				if (login(emailField.getText().toString(), passField.getText().toString())) {
 					Toast.makeText(getApplicationContext(), "Login successful!", Toast.LENGTH_SHORT).show();
+					Intent data = new Intent();
+					data.putExtra(MainActivity.KEY_LOGIN, key);
+					setResult(RESULT_OK, data);
 				} else {
 					Toast.makeText(getApplicationContext(), "Login failed!", Toast.LENGTH_SHORT).show();
+					setResult(RESULT_CANCELED);
 				}
+				
 				
 				finish();
 				
@@ -58,6 +64,7 @@ public class LoginDialog extends Activity {
 			
 			@Override
 			public void onClick(View v) {
+				setResult(RESULT_CANCELED);
 				finish();
 				
 			}
