@@ -105,6 +105,8 @@ public StudentAppointment(Calendar mDate, ArrayList<Subject> subjList, User with
 		case ICC:
 			s += "ICC";
 			break;
+		default:
+			break;
 		}
 		
 		return s;

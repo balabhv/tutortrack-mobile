@@ -17,7 +17,7 @@ public class TutorBlock {
 	/**
 	 * @return the tutor
 	 */
-	public User getTutor() {
+	public User getTutor(){
 		return tutor;
 	}
 
@@ -87,6 +87,8 @@ public class TutorBlock {
 			break;
 		case ICC:
 			s += "ICC";
+			break;
+		default:
 			break;
 		}
 
@@ -183,6 +185,30 @@ public class TutorBlock {
 		}
 
 		return month + day + year;
+	}
+
+	/**
+	 * @param tutor
+	 * @param subjects
+	 * @param startDate
+	 * @param endDate
+	 * @param startTime
+	 * @param endTime
+	 * @param where
+	 */
+	public TutorBlock(User tutor, ArrayList<Subject> subjects,
+			Calendar startDate, Calendar endDate, Calendar startTime,
+			Calendar endTime, Location where) {
+		this.tutor = tutor;
+		this.subjects = subjects;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.where = where;
+	}
+	
+	public TutorBlock() {
 	}
 
 }

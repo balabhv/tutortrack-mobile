@@ -44,5 +44,6 @@
     <string name="filters">Filters</string>
     <string name="blank_desc"></string>
     <string name="select_one">Select one of the following</string>
+    <string name="welcome">Welcome to TutorTrack!</string>
 
 </resources>

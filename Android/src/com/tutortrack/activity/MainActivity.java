@@ -1,14 +1,19 @@
 package com.tutortrack.activity;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.tutortrack.R;
+import com.tutortrack.api.API;
 import com.tutortrack.dialog.LoginDialog;
 
 public class MainActivity extends Activity {
@@ -27,6 +32,12 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+
+		API.mainActivity = this;
+		
+		if(!API.hasConnectivity()) {
+			// no connectivity warning here
+		}
 
 		studentLogin = (Button) findViewById(R.id.student_login_button);
 		tutorLogin = (Button) findViewById(R.id.tutor_login_button);
@@ -70,11 +81,34 @@ public class MainActivity extends Activity {
 
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+	public void onResume() {
+		super.onResume();
+
+		// Initialize action bar customization for API >= 11
+		if (android.os.Build.VERSION.SDK_INT >= 11) {
+			ActionBar bar = getActionBar();
+
+			// make the actionbar clickable
+			Drawable logo = this.getResources().getDrawable(R.drawable.logo);
+			bar.setLogo(this.resize(logo));
+			bar.setDisplayUseLogoEnabled(true);
+			bar.setDisplayShowTitleEnabled(false);
+		}
+		
+	}
+
+	private Drawable resize(Drawable image) {
+
+		final TypedArray styledAttributes = getBaseContext().getTheme()
+				.obtainStyledAttributes(
+						new int[] { android.R.attr.actionBarSize });
+		int mActionBarSize = (int) styledAttributes.getDimension(0, 0);
+		styledAttributes.recycle();
+
+		Bitmap b = ((BitmapDrawable) image).getBitmap();
+		Bitmap bitmapResized = Bitmap.createScaledBitmap(b, b.getWidth(),
+				mActionBarSize, false);
+		return new BitmapDrawable(getResources(), bitmapResized);
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

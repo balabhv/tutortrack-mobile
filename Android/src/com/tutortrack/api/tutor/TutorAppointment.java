@@ -104,6 +104,8 @@ public TutorAppointment(Calendar mDate, ArrayList<Subject> subjList, User withWh
 		case ICC:
 			s += "ICC";
 			break;
+		default:
+			break;
 		}
 		
 		return s;
