@@ -45,5 +45,6 @@
     <string name="blank_desc"></string>
     <string name="select_one">Select one of the following</string>
     <string name="welcome">Welcome to TutorTrack!</string>
+    <string name="make_appointment_string">Would you like to make an appointment?</string>
 
 </resources>

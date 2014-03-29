@@ -5,7 +5,12 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
+import android.app.ActionBar;
 import android.app.Activity;
+import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -80,6 +85,36 @@ public class TutorAppointmentManager extends Activity {
 			}
 		});
 
+	}
+	
+	public void onResume() {
+		super.onResume();
+
+		// Initialize action bar customization for API >= 11
+		if (android.os.Build.VERSION.SDK_INT >= 11) {
+			ActionBar bar = getActionBar();
+
+			// make the actionbar clickable
+			Drawable logo = this.getResources().getDrawable(R.drawable.logo);
+			bar.setLogo(this.resize(logo));
+			bar.setDisplayUseLogoEnabled(true);
+			bar.setDisplayShowTitleEnabled(false);
+		}
+		
+	}
+
+	private Drawable resize(Drawable image) {
+
+		final TypedArray styledAttributes = getBaseContext().getTheme()
+				.obtainStyledAttributes(
+						new int[] { android.R.attr.actionBarSize });
+		int mActionBarSize = (int) styledAttributes.getDimension(0, 0);
+		styledAttributes.recycle();
+
+		Bitmap b = ((BitmapDrawable) image).getBitmap();
+		Bitmap bitmapResized = Bitmap.createScaledBitmap(b, b.getWidth(),
+				mActionBarSize, false);
+		return new BitmapDrawable(getResources(), bitmapResized);
 	}
 
 	private void fillScrollQueue() {

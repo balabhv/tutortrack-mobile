@@ -1,5 +1,6 @@
 package com.tutortrack.api.student;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -7,8 +8,12 @@ import com.tutortrack.api.API.Location;
 import com.tutortrack.api.Subject;
 import com.tutortrack.api.User;
 
-public class TutorBlock {
+public class TutorBlock implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4689150249867551075L;
 	private User tutor;
 	private ArrayList<Subject> subjects;
 	private Calendar startDate, endDate, startTime, endTime;

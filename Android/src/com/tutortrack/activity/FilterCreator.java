@@ -1,12 +1,12 @@
 package com.tutortrack.activity;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,6 +23,9 @@ import android.widget.Toast;
 import com.tutortrack.R;
 import com.tutortrack.api.API;
 import com.tutortrack.api.API.Location;
+import com.tutortrack.api.Filter;
+import com.tutortrack.api.Filter.FilterType;
+import com.tutortrack.api.utils.SharedPreferencesExecutor;
 
 public class FilterCreator extends Activity {
 
@@ -30,14 +33,13 @@ public class FilterCreator extends Activity {
 	private Button addFilter, ok, cancel;
 	private LinearLayout filterScroll;
 	private ScrollView filterScrollHolder;
+	private ArrayList<Filter> filters = new ArrayList<Filter>();
+	private SharedPreferencesExecutor<ArrayList<Filter>> saver;
 
 	private static final int FILTER_TYPE_LOCATION = 0;
 	private static final int FILTER_TYPE_SUBJECT = 1;
-	public static final String SHARED_PREFERENCE_FILTERS = "filters";
 	private int locationCount = 0;
 	private int subjectCount = 0;
-	private SharedPreferences prefs = getSharedPreferences(
-			SHARED_PREFERENCE_FILTERS, 0);
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -49,6 +51,8 @@ public class FilterCreator extends Activity {
 		cancel = (Button) findViewById(R.id.filters_cancel);
 		filterScroll = (LinearLayout) findViewById(R.id.filters_view);
 		filterScrollHolder = (ScrollView) findViewById(R.id.filters_scroll);
+		saver = new SharedPreferencesExecutor<ArrayList<Filter>>(
+				API.mainActivity.getApplicationContext(), "filters");
 
 		cancel.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -77,55 +81,46 @@ public class FilterCreator extends Activity {
 			}
 		});
 
-		loadFiltersFromPrefs();
-
 	}
 
-	private void loadFiltersFromPrefs() {
-		int filter_count = prefs.getInt("filter_count", 0);
-		String filter_dump = prefs.getString("filters",
-				(new JSONObject()).toString());
+	public void onResume() {
+		super.onResume();
+		String json = saver.retreiveJSONString("filters");
+		System.out.println(json);
+		filters = FilterCreator.deserializeJSONString(json);
+		this.loadFiltersFromPreferences();
+	}
 
+	public static ArrayList<Filter> deserializeJSONString(String json) {
+		ArrayList<Filter> temp = new ArrayList<Filter>();
 		try {
-			JSONObject filterObj = new JSONObject(filter_dump);
-			switch (filter_count) {
-			case 0:
-				return;
-			case 1:
-				if ((filterObj.has("location"))
-						&& (filterObj.getString("location") != null)) {
-					String loc = filterObj.getString("location");
-					Location l = API.locationFromString(loc);
-					this.locationCount = 1;
-					this.addFilterOfType(FILTER_TYPE_LOCATION, l);
-				} else if ((filterObj.has("subject"))
-						&& (filterObj.getString("subject") != null)) {
-					String sub = filterObj.getString("subject");
-					this.subjectCount = 1;
-					this.addFilterOfType(FILTER_TYPE_SUBJECT, sub);
+			JSONArray arr = new JSONArray(json);
+			for (int i = 0 ; i < arr.length() ; ++i) {
+				Filter f = new Filter();
+				JSONObject obj = arr.getJSONObject(i);
+				
+				if (obj.getString("type").equalsIgnoreCase("LOCATION")) {
+					f.setType(FilterType.LOCATION);
+					f.setValue(API.locationFromString(obj.getString("value")));
+				} else {
+					f.setType(FilterType.SUBJECT);
+					f.setValue(obj.getString("value"));
 				}
-				break;
-			case 2:
-				String loc = filterObj.getString("location");
-				Location l = API.locationFromString(loc);
-				this.locationCount = 1;
-				this.addFilterOfType(FILTER_TYPE_LOCATION, l);
-				String sub = filterObj.getString("subject");
-				this.subjectCount = 1;
-				this.addFilterOfType(FILTER_TYPE_SUBJECT, sub);
-				break;
-			default:
-				return;
+				
+				temp.add(f);
 			}
 		} catch (Exception e) {
-
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
+		return temp;
 	}
 
-	private void addFilterOfType(int pos, Object l) {
+	private void addFilterOfType(int pos) {
 		final View v = View.inflate(this.getApplicationContext(),
 				R.layout.filter_element, null);
+
+		Filter f = new Filter();
 
 		v.setTag(pos);
 
@@ -145,6 +140,7 @@ public class FilterCreator extends Activity {
 				}
 
 				filterScroll.removeView(v);
+				filters.remove(v.getId());
 
 			}
 		});
@@ -157,9 +153,8 @@ public class FilterCreator extends Activity {
 					this, android.R.layout.simple_spinner_dropdown_item,
 					myResArray);
 			s.setAdapter(spinnerArrayAdapter);
-			Location loc = (Location) l;
-			s.setSelection(Arrays.asList(myResArray).indexOf(
-					API.stringFromLocation(loc)));
+			f.setType(FilterType.LOCATION);
+			f.setValue(API.locationFromString(myResArray[0]));
 		} else {
 			t.setText("Subject is:");
 			String[] myResArray = getResources().getStringArray(
@@ -168,7 +163,8 @@ public class FilterCreator extends Activity {
 					this, android.R.layout.simple_spinner_dropdown_item,
 					myResArray);
 			s.setAdapter(spinnerArrayAdapter);
-			s.setSelection(Arrays.asList(myResArray).indexOf((String) l));
+			f.setType(FilterType.SUBJECT);
+			f.setValue(myResArray[0]);
 		}
 
 		s.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -177,18 +173,20 @@ public class FilterCreator extends Activity {
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
 					int arg2, long arg3) {
 				TextView selectedText = (TextView) arg0.getChildAt(0);
-				if (selectedText != null) {
-					selectedText.setTextColor(Color.BLACK);
+				Filter f = filters.get(v.getId());
+				if (f.getType() == FilterType.LOCATION) {
+					f.setValue(API.locationFromString(selectedText.getText()
+							.toString()));
+				} else {
+					f.setValue(selectedText.getText().toString());
 				}
+
+				filters.set(v.getId(), f);
 
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
-				TextView selectedText = (TextView) arg0.getChildAt(0);
-				if (selectedText != null) {
-					selectedText.setTextColor(Color.BLACK);
-				}
 
 			}
 		});
@@ -202,82 +200,15 @@ public class FilterCreator extends Activity {
 		filterScroll.addView(v, layoutParams);
 		scrollDown();
 
+		filters.add(f);
+		int id = filters.indexOf(f);
+		v.setId(id);
+
 	}
 
 	protected void applyFilters() {
 
-		int filtercount = filterScroll.getChildCount();
-		switch (filtercount) {
-		case 0:
-			noFilters();
-			break;
-		case 1:
-			oneFilter();
-			break;
-		case 2:
-			twoFilters();
-			break;
-		default:
-			break;
-		}
-
-	}
-
-	private void twoFilters() {
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putInt("filter_count", 2);
-		JSONObject obj = new JSONObject();
-		for (int i = 0; i < 2; i++) {
-			View v = filterScroll.getChildAt(i);
-			try {
-				if ((Integer) v.getTag() == FILTER_TYPE_LOCATION) {
-					Spinner s = (Spinner) v.findViewById(R.id.filter_criteria);
-					String str = (String) s.getSelectedItem();
-					obj.put("location", str);
-					editor.putString("filters", obj.toString());
-				} else {
-					Spinner s = (Spinner) v.findViewById(R.id.filter_criteria);
-					String str = (String) s.getSelectedItem();
-					obj.put("subject", str);
-					editor.putString("filters", obj.toString());
-				}
-			} catch (Exception e) {
-
-			}
-		}
-		editor.commit();
-	}
-
-	private void oneFilter() {
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putInt("filter_count", 1);
-
-		View v = filterScroll.getChildAt(0);
-		try {
-			if ((Integer) v.getTag() == FILTER_TYPE_LOCATION) {
-				Spinner s = (Spinner) v.findViewById(R.id.filter_criteria);
-				String str = (String) s.getSelectedItem();
-				JSONObject obj = new JSONObject();
-				obj.put("location", str);
-				editor.putString("filters", obj.toString());
-			} else {
-				Spinner s = (Spinner) v.findViewById(R.id.filter_criteria);
-				String str = (String) s.getSelectedItem();
-				JSONObject obj = new JSONObject();
-				obj.put("subject", str);
-				editor.putString("filters", obj.toString());
-			}
-		} catch (Exception e) {
-
-		}
-		editor.commit();
-
-	}
-
-	private void noFilters() {
-		SharedPreferences.Editor editor = prefs.edit();
-		editor.putInt("filter_count", 0);
-		editor.commit();
+		saver.save("filters", filters);
 
 	}
 
@@ -302,11 +233,42 @@ public class FilterCreator extends Activity {
 
 	}
 
-	private void addFilterOfType(int pos) {
+	private void scrollDown() {
+		Thread scrollThread = new Thread() {
+			public void run() {
+				try {
+					sleep(200);
+					FilterCreator.this.runOnUiThread(new Runnable() {
+						public void run() {
+							filterScrollHolder.fullScroll(View.FOCUS_DOWN);
+						}
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		scrollThread.start();
+	}
+
+	private void loadFiltersFromPreferences() {
+
+		if (filters == null)
+			filters = new ArrayList<Filter>();
+		for (int i = 0; i < filters.size(); i++) {
+			addFilterOfTypeFromPrefs(i);
+		}
+	}
+
+	private void addFilterOfTypeFromPrefs(final int pos) {
 		final View v = View.inflate(this.getApplicationContext(),
 				R.layout.filter_element, null);
 
-		v.setTag(pos);
+		Filter f = filters.get(pos);
+
+		v.setTag((f.getType() == FilterType.LOCATION) ? FILTER_TYPE_LOCATION
+				: FILTER_TYPE_SUBJECT);
+		v.setId(pos);
 
 		TextView t = (TextView) v.findViewById(R.id.filter_name);
 		Spinner s = (Spinner) v.findViewById(R.id.filter_criteria);
@@ -324,6 +286,7 @@ public class FilterCreator extends Activity {
 				}
 
 				filterScroll.removeView(v);
+				filters.remove(pos);
 
 			}
 		});
@@ -336,6 +299,9 @@ public class FilterCreator extends Activity {
 					this, android.R.layout.simple_spinner_dropdown_item,
 					myResArray);
 			s.setAdapter(spinnerArrayAdapter);
+			Location l = (Location) f.getValue();
+			s.setSelection(Arrays.asList(myResArray).indexOf(
+					API.stringFromLocation(l)));
 		} else {
 			t.setText("Subject is:");
 			String[] myResArray = getResources().getStringArray(
@@ -344,6 +310,8 @@ public class FilterCreator extends Activity {
 					this, android.R.layout.simple_spinner_dropdown_item,
 					myResArray);
 			s.setAdapter(spinnerArrayAdapter);
+			String str = (String) f.getValue();
+			s.setSelection(Arrays.asList(myResArray).indexOf(str));
 		}
 
 		s.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -352,18 +320,20 @@ public class FilterCreator extends Activity {
 			public void onItemSelected(AdapterView<?> arg0, View arg1,
 					int arg2, long arg3) {
 				TextView selectedText = (TextView) arg0.getChildAt(0);
-				if (selectedText != null) {
-					selectedText.setTextColor(Color.BLACK);
+				Filter f = filters.get(v.getId());
+				if (f.getType() == FilterType.LOCATION) {
+					f.setValue(API.locationFromString(selectedText.getText()
+							.toString()));
+				} else {
+					f.setValue(selectedText.getText().toString());
 				}
+
+				filters.set(pos, f);
 
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
-				TextView selectedText = (TextView) arg0.getChildAt(0);
-				if (selectedText != null) {
-					selectedText.setTextColor(Color.BLACK);
-				}
 
 			}
 		});
@@ -376,24 +346,7 @@ public class FilterCreator extends Activity {
 
 		filterScroll.addView(v, layoutParams);
 		scrollDown();
-	}
 
-	private void scrollDown() {
-		Thread scrollThread = new Thread() {
-			public void run() {
-				try {
-					sleep(200);
-					FilterCreator.this.runOnUiThread(new Runnable() {
-						public void run() {
-							filterScrollHolder.fullScroll(View.FOCUS_DOWN);
-						}
-					});
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		};
-		scrollThread.start();
 	}
 
 }

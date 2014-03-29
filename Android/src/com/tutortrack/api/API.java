@@ -31,18 +31,15 @@ public class API {
 	public enum Location {
 		NORTH, SOUTH, EAST, ICC, NONE;
 	}
-	
-	public static boolean hasConnectivity() {
-	     ConnectivityManager connectivityManager = (ConnectivityManager) mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE);
-	     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-	     return activeNetworkInfo != null; 
-	}
 
 	private static API instance = null;
 	private static User currentUser;
 	public static Activity mainActivity;
+	private static boolean useDev = true;
 
-	private String DEV_BASE_URL = "http://10.253.93.115:8080/_ah/api/tutortrack/v1";
+	public final static String DEV_BASE_URL = "http://10.253.93.49:8080/_ah/api/tutortrack/v1";
+	public final static String PROD_BASE_URL = "https://tutor-track-api.appspot.com/_ah/api/tutortrack/v1";
+	private static String baseUrl;
 
 	public static API getInstance() {
 		if (instance == null) {
@@ -51,6 +48,25 @@ public class API {
 		return instance;
 	}
 	
+	public static void setUseDev(boolean yes) {
+		useDev = yes;
+		if (useDev()) {
+			baseUrl = DEV_BASE_URL;
+		} else {
+			baseUrl = PROD_BASE_URL;
+		}
+	}
+	
+	public static boolean useDev() {
+		return useDev;
+	}
+	
+	public static boolean hasConnectivity() {
+	     ConnectivityManager connectivityManager = (ConnectivityManager) mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE);
+	     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+	     return activeNetworkInfo != null; 
+	}
+
 	public static Location locationFromString(String s) {
 		if (s.equalsIgnoreCase("North")) {
 			return Location.NORTH;
@@ -58,8 +74,10 @@ public class API {
 			return Location.EAST;
 		} else if (s.equalsIgnoreCase("South")) {
 			return Location.SOUTH;
-		} else {
+		} else if (s.equalsIgnoreCase("ICC")){
 			return Location.ICC;
+		} else {
+			return Location.NONE;
 		}
 	}
 	
@@ -85,7 +103,7 @@ public class API {
 		String res;
 		try {
 			System.out.println("Inside try");
-			res = makeRequest(DEV_BASE_URL, "students/myInfo", "email="
+			res = makeRequest(baseUrl, "students/myInfo", "email="
 					+ URLEncoder.encode(email, "UTF-8") + "&password="
 					+ URLEncoder.encode(password, "UTF-8"), "GET", null);
 			JSONObject result = new JSONObject(res);
@@ -110,7 +128,7 @@ public class API {
 		String res;
 		try {
 			System.out.println("Inside try");
-			res = makeRequest(DEV_BASE_URL, "tutors/myInfo", "email="
+			res = makeRequest(baseUrl, "tutors/myInfo", "email="
 					+ URLEncoder.encode(email, "UTF-8") + "&password="
 					+ URLEncoder.encode(password, "UTF-8"), "GET", null);
 			JSONObject result = new JSONObject(res);
@@ -135,7 +153,7 @@ public class API {
 		String res;
 		try {
 			System.out.println("Inside try");
-			res = makeRequest(DEV_BASE_URL, "admins/myInfo", "email="
+			res = makeRequest(baseUrl, "admins/myInfo", "email="
 					+ URLEncoder.encode(email, "UTF-8") + "&password="
 					+ URLEncoder.encode(password, "UTF-8"), "GET", null);
 			JSONObject result = new JSONObject(res);
@@ -162,8 +180,8 @@ public class API {
 	public ArrayList<TutorBlock> searchTutors(Location loc, String subject) {
 		ArrayList<TutorBlock> results = new ArrayList<TutorBlock>();
 		
-		SimpleDateFormat dateformat = new SimpleDateFormat("MM/dd/yyyy");
-		SimpleDateFormat timeformat = new SimpleDateFormat("h:mm a");
+		SimpleDateFormat dateformat = new SimpleDateFormat("MM/dd/yy");
+		SimpleDateFormat timeformat = new SimpleDateFormat("h a");
 
 		String locSearch = API.stringFromLocation(loc);
 		
@@ -172,7 +190,18 @@ public class API {
 			String parameters = "location="
 					+ URLEncoder.encode(locSearch, "UTF-8") + "&subject="
 					+ URLEncoder.encode(subject, "UTF-8");
-			String req = makeRequest(DEV_BASE_URL, "tutors/search", parameters, "GET", null);
+			
+			if (subject.equalsIgnoreCase("")) {
+				if (locSearch.equalsIgnoreCase(""))
+					parameters = "";
+				else
+					parameters = parameters.substring(0,parameters.indexOf("&"));
+			} else {
+				if (locSearch.equalsIgnoreCase(""))
+					parameters = parameters.substring(parameters.indexOf("&")+1);
+			}
+					
+			String req = makeRequest(baseUrl, "tutors/search", parameters, "GET", null);
 			JSONObject reqRes = new JSONObject(req);
 			JSONArray res = reqRes.getJSONArray("items");
 			
@@ -210,7 +239,7 @@ public class API {
 				results.add(block);
 			}
 		} catch (Exception e) {
-
+			e.printStackTrace();
 		}
 		
 		return results;

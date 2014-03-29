@@ -47,6 +47,9 @@
         <activity
             android:name=".activity.FilterCreator"
             android:theme="@style/AppThemeDialog" />
+        <activity
+            android:name=".dialog.MakeAppointmentDialog"
+            android:theme="@style/AppThemeDialog" />
     </application>
 
 </manifest>
