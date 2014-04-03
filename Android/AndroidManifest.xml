@@ -48,7 +48,12 @@
             android:name=".activity.FilterCreator"
             android:theme="@style/AppThemeDialog" />
         <activity
-            android:name=".dialog.MakeAppointmentDialog"
+            android:name=".dialog.MakeAppointmentLongpressConfirmationDialog"
+            android:label="Would you like to make an appointment?"
+            android:theme="@style/AppThemeDialog" />
+        <activity
+            android:name=".dialog.AppointmentCreator"
+            android:label="Make an Appointment"
             android:theme="@style/AppThemeDialog" />
     </application>
 

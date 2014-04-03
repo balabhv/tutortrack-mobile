@@ -18,7 +18,7 @@ import android.widget.TextView;
 import com.tutortrack.R;
 import com.tutortrack.activity.TutorBrowser;
 import com.tutortrack.api.API;
-import com.tutortrack.dialog.MakeAppointmentDialog;
+import com.tutortrack.dialog.MakeAppointmentLongpressConfirmationDialog;
 
 public class TutorBlockAdapter extends BaseAdapter {
 
@@ -70,7 +70,7 @@ public class TutorBlockAdapter extends BaseAdapter {
 			
 			@Override
 			public boolean onLongClick(View v) {
-				Intent i = new Intent(mContext, MakeAppointmentDialog.class);
+				Intent i = new Intent(mContext, MakeAppointmentLongpressConfirmationDialog.class);
 				i.putExtra("data", block);
 				((Activity) mContext).startActivityForResult(i, TutorBrowser.APPOINTMENT_REQUESTED);
 				return true;

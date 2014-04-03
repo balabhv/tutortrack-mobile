@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,11 +36,12 @@ public class FilterCreator extends Activity {
 	private ScrollView filterScrollHolder;
 	private ArrayList<Filter> filters = new ArrayList<Filter>();
 	private SharedPreferencesExecutor<ArrayList<Filter>> saver;
+	private SharedPreferences prefs;
 
 	private static final int FILTER_TYPE_LOCATION = 0;
 	private static final int FILTER_TYPE_SUBJECT = 1;
-	private int locationCount = 0;
-	private int subjectCount = 0;
+	private int locationCount;
+	private int subjectCount;
 
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -85,6 +87,9 @@ public class FilterCreator extends Activity {
 
 	public void onResume() {
 		super.onResume();
+		prefs = this.getSharedPreferences("filter_creator_settings", 0);
+		locationCount = prefs.getInt("location_count", 0);
+		subjectCount = prefs.getInt("subject_count", 0);
 		String json = saver.retreiveJSONString("filters");
 		System.out.println(json);
 		filters = FilterCreator.deserializeJSONString(json);
@@ -95,10 +100,10 @@ public class FilterCreator extends Activity {
 		ArrayList<Filter> temp = new ArrayList<Filter>();
 		try {
 			JSONArray arr = new JSONArray(json);
-			for (int i = 0 ; i < arr.length() ; ++i) {
+			for (int i = 0; i < arr.length(); ++i) {
 				Filter f = new Filter();
 				JSONObject obj = arr.getJSONObject(i);
-				
+
 				if (obj.getString("type").equalsIgnoreCase("LOCATION")) {
 					f.setType(FilterType.LOCATION);
 					f.setValue(API.locationFromString(obj.getString("value")));
@@ -106,7 +111,7 @@ public class FilterCreator extends Activity {
 					f.setType(FilterType.SUBJECT);
 					f.setValue(obj.getString("value"));
 				}
-				
+
 				temp.add(f);
 			}
 		} catch (Exception e) {
@@ -135,8 +140,14 @@ public class FilterCreator extends Activity {
 
 				if (((Integer) v.getTag()).intValue() == FILTER_TYPE_LOCATION) {
 					locationCount--;
+					SharedPreferences.Editor editor = prefs.edit();
+					editor.putInt("location_count", locationCount);
+					editor.commit();
 				} else if (((Integer) v.getTag()).intValue() == FILTER_TYPE_SUBJECT) {
 					subjectCount--;
+					SharedPreferences.Editor editor = prefs.edit();
+					editor.putInt("subject_count", subjectCount);
+					editor.commit();
 				}
 
 				filterScroll.removeView(v);
@@ -216,17 +227,26 @@ public class FilterCreator extends Activity {
 		int pos = filterType.getSelectedItemPosition();
 
 		if (pos == FilterCreator.FILTER_TYPE_LOCATION) {
-			if (this.locationCount == 0)
+			if (this.locationCount == 0) {
 				locationCount++;
-			else
+				SharedPreferences.Editor editor = prefs.edit();
+				editor.putInt("location_count", locationCount);
+				editor.commit();
+
+			} else
 				Toast.makeText(getApplicationContext(),
 						"One Location Filter Only", Toast.LENGTH_SHORT).show();
+			return;
 		} else if (pos == FilterCreator.FILTER_TYPE_SUBJECT) {
-			if (this.subjectCount == 0)
+			if (this.subjectCount == 0) {
 				this.subjectCount++;
-			else
+				SharedPreferences.Editor editor = prefs.edit();
+				editor.putInt("subject_count", subjectCount);
+				editor.commit();
+			} else
 				Toast.makeText(getApplicationContext(),
 						"One Subject Filter Only", Toast.LENGTH_SHORT).show();
+			return;
 		}
 
 		addFilterOfType(pos);
@@ -281,8 +301,14 @@ public class FilterCreator extends Activity {
 
 				if (((Integer) v.getTag()).intValue() == FILTER_TYPE_LOCATION) {
 					locationCount--;
+					SharedPreferences.Editor editor = prefs.edit();
+					editor.putInt("location_count", locationCount);
+					editor.commit();
 				} else if (((Integer) v.getTag()).intValue() == FILTER_TYPE_SUBJECT) {
 					subjectCount--;
+					SharedPreferences.Editor editor = prefs.edit();
+					editor.putInt("subject_count", subjectCount);
+					editor.commit();
 				}
 
 				filterScroll.removeView(v);

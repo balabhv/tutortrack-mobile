@@ -22,6 +22,7 @@ import com.tutortrack.api.Filter.FilterType;
 import com.tutortrack.api.student.TutorBlock;
 import com.tutortrack.api.student.TutorBlockAdapter;
 import com.tutortrack.api.utils.SharedPreferencesExecutor;
+import com.tutortrack.dialog.AppointmentCreator;
 
 public class TutorBrowser extends Activity {
 
@@ -111,6 +112,9 @@ public class TutorBrowser extends Activity {
 			
 		} else if (reqCode == APPOINTMENT_REQUESTED && resCode == RESULT_OK) {
 			TutorBlock block = (TutorBlock) data.getSerializableExtra("data");
+			Intent i = new Intent(this, AppointmentCreator.class);
+			i.putExtra("data", block);
+			startActivity(i);
 		}
 	}
 

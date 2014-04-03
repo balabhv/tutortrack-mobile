@@ -37,7 +37,7 @@ public class API {
 	public static Activity mainActivity;
 	private static boolean useDev = true;
 
-	public final static String DEV_BASE_URL = "http://10.253.93.49:8080/_ah/api/tutortrack/v1";
+	public final static String DEV_BASE_URL = "http://10.253.93.80:8080/_ah/api/tutortrack/v1";
 	public final static String PROD_BASE_URL = "https://tutor-track-api.appspot.com/_ah/api/tutortrack/v1";
 	private static String baseUrl;
 
@@ -47,7 +47,7 @@ public class API {
 		}
 		return instance;
 	}
-	
+
 	public static void setUseDev(boolean yes) {
 		useDev = yes;
 		if (useDev()) {
@@ -56,15 +56,17 @@ public class API {
 			baseUrl = PROD_BASE_URL;
 		}
 	}
-	
+
 	public static boolean useDev() {
 		return useDev;
 	}
-	
+
 	public static boolean hasConnectivity() {
-	     ConnectivityManager connectivityManager = (ConnectivityManager) mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE);
-	     NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-	     return activeNetworkInfo != null; 
+		ConnectivityManager connectivityManager = (ConnectivityManager) mainActivity
+				.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager
+				.getActiveNetworkInfo();
+		return activeNetworkInfo != null;
 	}
 
 	public static Location locationFromString(String s) {
@@ -74,13 +76,13 @@ public class API {
 			return Location.EAST;
 		} else if (s.equalsIgnoreCase("South")) {
 			return Location.SOUTH;
-		} else if (s.equalsIgnoreCase("ICC")){
+		} else if (s.equalsIgnoreCase("ICC")) {
 			return Location.ICC;
 		} else {
 			return Location.NONE;
 		}
 	}
-	
+
 	public static String stringFromLocation(Location l) {
 		switch (l) {
 		case NORTH:
@@ -103,9 +105,9 @@ public class API {
 		String res;
 		try {
 			System.out.println("Inside try");
-			res = makeRequest(baseUrl, "students/myInfo", "email="
-					+ URLEncoder.encode(email, "UTF-8") + "&password="
-					+ URLEncoder.encode(password, "UTF-8"), "GET", null);
+			res = makeRequest(baseUrl, "students/myInfo",
+					"email=" + URLEncoder.encode(email, "UTF-8") + "&password="
+							+ URLEncoder.encode(password, "UTF-8"), "GET", null);
 			JSONObject result = new JSONObject(res);
 
 			if (result.getString("name") != null) {
@@ -128,9 +130,9 @@ public class API {
 		String res;
 		try {
 			System.out.println("Inside try");
-			res = makeRequest(baseUrl, "tutors/myInfo", "email="
-					+ URLEncoder.encode(email, "UTF-8") + "&password="
-					+ URLEncoder.encode(password, "UTF-8"), "GET", null);
+			res = makeRequest(baseUrl, "tutors/myInfo",
+					"email=" + URLEncoder.encode(email, "UTF-8") + "&password="
+							+ URLEncoder.encode(password, "UTF-8"), "GET", null);
 			JSONObject result = new JSONObject(res);
 
 			if (result.getString("name") != null) {
@@ -153,9 +155,9 @@ public class API {
 		String res;
 		try {
 			System.out.println("Inside try");
-			res = makeRequest(baseUrl, "admins/myInfo", "email="
-					+ URLEncoder.encode(email, "UTF-8") + "&password="
-					+ URLEncoder.encode(password, "UTF-8"), "GET", null);
+			res = makeRequest(baseUrl, "admins/myInfo",
+					"email=" + URLEncoder.encode(email, "UTF-8") + "&password="
+							+ URLEncoder.encode(password, "UTF-8"), "GET", null);
 			JSONObject result = new JSONObject(res);
 
 			if (result.getString("name") != null) {
@@ -179,34 +181,36 @@ public class API {
 	@SuppressLint("SimpleDateFormat")
 	public ArrayList<TutorBlock> searchTutors(Location loc, String subject) {
 		ArrayList<TutorBlock> results = new ArrayList<TutorBlock>();
-		
+
 		SimpleDateFormat dateformat = new SimpleDateFormat("MM/dd/yy");
 		SimpleDateFormat timeformat = new SimpleDateFormat("h a");
 
 		String locSearch = API.stringFromLocation(loc);
-		
 
 		try {
 			String parameters = "location="
 					+ URLEncoder.encode(locSearch, "UTF-8") + "&subject="
 					+ URLEncoder.encode(subject, "UTF-8");
-			
+
 			if (subject.equalsIgnoreCase("")) {
 				if (locSearch.equalsIgnoreCase(""))
 					parameters = "";
 				else
-					parameters = parameters.substring(0,parameters.indexOf("&"));
+					parameters = parameters.substring(0,
+							parameters.indexOf("&"));
 			} else {
 				if (locSearch.equalsIgnoreCase(""))
-					parameters = parameters.substring(parameters.indexOf("&")+1);
+					parameters = parameters
+							.substring(parameters.indexOf("&") + 1);
 			}
-					
-			String req = makeRequest(baseUrl, "tutors/search", parameters, "GET", null);
+
+			String req = makeRequest(baseUrl, "tutors/search", parameters,
+					"GET", null);
 			JSONObject reqRes = new JSONObject(req);
 			JSONArray res = reqRes.getJSONArray("items");
-			
-			for (int i = 0 ; i < res.length() ; i++) {
-				
+
+			for (int i = 0; i < res.length(); i++) {
+
 				JSONObject obj = res.getJSONObject(i);
 				String name = obj.getString("name");
 				String startD = obj.getString("startDate");
@@ -215,7 +219,7 @@ public class API {
 				String endT = obj.getString("endTime");
 				String location = obj.getString("location");
 				String tempsub = obj.getString("subjects");
-				
+
 				Calendar startDate = Calendar.getInstance();
 				startDate.setTime(dateformat.parse(startD));
 				Calendar endDate = Calendar.getInstance();
@@ -230,19 +234,40 @@ public class API {
 				for (String sub : parts) {
 					subjects.add(new Subject(sub));
 				}
-				
+
 				User u = new User();
 				u.setName(name);
 				u.setType(UserType.TUTOR);
-				
-				TutorBlock block = new TutorBlock(u, subjects, startDate, endDate, startTime, endTime, tutorLoc);
+
+				TutorBlock block = new TutorBlock(u, subjects, startDate,
+						endDate, startTime, endTime, tutorLoc);
 				results.add(block);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return results;
+	}
+
+	public User getTutor(String name) {
+		User t = new User();
+		try {
+			String res = makeRequest(baseUrl, "tutors/searchByName",
+					"tutor_name=" + URLEncoder.encode(name, "UTF-8"), "GET",
+					null);
+			JSONObject respJSON = new JSONObject(res);
+			if (respJSON.getString("name") != null) {
+				t.setName(name);
+				t.setEmail(respJSON.getString("email"));
+				t.setType(UserType.TUTOR);
+				return t;
+			}
+		} catch (Exception e) {
+			return null;
+		}
+
+		return null;
 	}
 
 	private String makeRequest(String baseURL, String path, String parameters,

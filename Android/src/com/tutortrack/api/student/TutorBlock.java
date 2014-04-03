@@ -77,8 +77,8 @@ public class TutorBlock implements Serializable{
 	public String getWhenWhereString() {
 		String s = "";
 
-		s = this.getStartDate() + " - " + this.getEndDate() + "\n"
-				+ this.getStartTime() + " - " + this.getEndTime()
+		s = this.getStartDateString() + " - " + this.getEndDateString() + "\n"
+				+ this.getStartTimeString() + " - " + this.getEndTimeString()
 				+ "\nLocation: ";
 		switch (this.where) {
 		case NORTH:
@@ -100,20 +100,48 @@ public class TutorBlock implements Serializable{
 		return s;
 	}
 
-	private String getEndTime() {
+	private String getEndTimeString() {
 		return getTimeString(endTime);
 	}
 
-	private String getStartTime() {
+	private String getStartTimeString() {
 		return getTimeString(startTime);
 	}
 
-	private String getEndDate() {
+	private String getEndDateString() {
 		return getDateString(endDate);
 	}
 
-	private String getStartDate() {
+	private String getStartDateString() {
 		return getDateString(startDate);
+	}
+	
+	/**
+	 * @return the startDate
+	 */
+	public Calendar getStartDate() {
+		return startDate;
+	}
+
+	/**
+	 * @return the endDate
+	 */
+	public Calendar getEndDate() {
+		return endDate;
+	}
+
+	/**
+	 * @return the startTime
+	 */
+	public Calendar getStartTime() {
+		return startTime;
+	}
+
+	/**
+	 * @return the endTime
+	 */
+	public Calendar getEndTime() {
+		return endTime;
 	}
 
 	/**
