@@ -23,6 +23,8 @@ public class MainActivity extends Activity {
 	public static final String KEY_TUTOR = "TUTOR";
 	public static final String KEY_ADMIN = "ADMIN";
 	public static final String PREFS_TAG = "PREFS";
+	
+	// test git
 
 	public static final int LOGIN_REQUESTED = 1;
 
