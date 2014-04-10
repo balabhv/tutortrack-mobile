@@ -112,7 +112,7 @@ public StudentAppointment(Calendar mDate, ArrayList<Subject> subjList, User with
 		return s;
 	}
 	
-	private String getTime() {
+	public String getTime() {
 		String hour = ":";
 		if (when.get(Calendar.HOUR) < 10) {
 			hour = "0" + when.get(Calendar.HOUR) + hour;
@@ -135,7 +135,7 @@ public StudentAppointment(Calendar mDate, ArrayList<Subject> subjList, User with
 		return hour + min + suffix;
 	}
 	
-	private String getDate() {
+	public String getDate() {
 		String month = "/";
 		if (when.get(Calendar.MONTH) < 10) {
 			month = "0" + when.get(Calendar.MONTH) + month;

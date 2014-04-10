@@ -198,7 +198,7 @@ public class TutorBlock implements Serializable{
 	private String getDateString(Calendar when) {
 		String month = "/";
 		if (when.get(Calendar.MONTH) < 10) {
-			month = "0" + when.get(Calendar.MONTH) + month;
+			month = "0" + (when.get(Calendar.MONTH) + 1) + month;
 		} else {
 			month = when.get(Calendar.MONTH) + month;
 		}
