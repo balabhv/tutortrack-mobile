@@ -53,6 +53,8 @@ public class TutorBlockAdapter extends BaseAdapter {
 
 		final TutorBlock block = getItem(arg0);
 		
+		System.out.println("Making views");
+		
 		LayoutInflater Li = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		View Cv = Li.inflate(R.layout.tutor_block,null);
 		final LinearLayout itemLayout = (LinearLayout) Cv;
@@ -114,6 +116,7 @@ public class TutorBlockAdapter extends BaseAdapter {
 			}
 			
 			List<TutorBlock> res = API.getInstance().searchTutors(API.locationFromString(loc), sub);
+			System.out.println("res.size() = " + res.size());
 			tempList.addAll(res);
 			
 			return null;

@@ -92,8 +92,11 @@ public class FilterCreator extends Activity {
 		subjectCount = prefs.getInt("subject_count", 0);
 		String json = saver.retreiveJSONString("filters");
 		System.out.println(json);
-		filters = FilterCreator.deserializeJSONString(json);
-		this.loadFiltersFromPreferences();
+		
+		if (!json.equalsIgnoreCase("")) {
+			filters = FilterCreator.deserializeJSONString(json);
+			this.loadFiltersFromPreferences();
+		}
 	}
 
 	public static ArrayList<Filter> deserializeJSONString(String json) {
@@ -139,12 +142,12 @@ public class FilterCreator extends Activity {
 			public void onClick(View view) {
 
 				if (((Integer) v.getTag()).intValue() == FILTER_TYPE_LOCATION) {
-					locationCount--;
+					locationCount = 0;
 					SharedPreferences.Editor editor = prefs.edit();
 					editor.putInt("location_count", locationCount);
 					editor.commit();
 				} else if (((Integer) v.getTag()).intValue() == FILTER_TYPE_SUBJECT) {
-					subjectCount--;
+					subjectCount = 0;
 					SharedPreferences.Editor editor = prefs.edit();
 					editor.putInt("subject_count", subjectCount);
 					editor.commit();
@@ -228,7 +231,7 @@ public class FilterCreator extends Activity {
 
 		if (pos == FilterCreator.FILTER_TYPE_LOCATION) {
 			if (this.locationCount == 0) {
-				locationCount++;
+				locationCount = 1;
 				SharedPreferences.Editor editor = prefs.edit();
 				editor.putInt("location_count", locationCount);
 				editor.commit();
@@ -239,7 +242,7 @@ public class FilterCreator extends Activity {
 			return;
 		} else if (pos == FilterCreator.FILTER_TYPE_SUBJECT) {
 			if (this.subjectCount == 0) {
-				this.subjectCount++;
+				subjectCount = 1;
 				SharedPreferences.Editor editor = prefs.edit();
 				editor.putInt("subject_count", subjectCount);
 				editor.commit();

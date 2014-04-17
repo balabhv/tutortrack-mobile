@@ -19,6 +19,8 @@ import com.tutortrack.api.API;
 import com.tutortrack.api.API.Location;
 import com.tutortrack.api.Filter;
 import com.tutortrack.api.Filter.FilterType;
+import com.tutortrack.api.student.StudentAppointment;
+import com.tutortrack.api.student.StudentAppointmentQueue;
 import com.tutortrack.api.student.TutorBlock;
 import com.tutortrack.api.student.TutorBlockAdapter;
 import com.tutortrack.api.utils.SharedPreferencesExecutor;
@@ -28,6 +30,7 @@ public class TutorBrowser extends Activity {
 
 	private static final int FILTERS_REQUESTED = 1;
 	public static final int APPOINTMENT_REQUESTED = 2;
+	public static final int APPOINTMENT_CREATION_REQUESTED = 3;
 	private ListView list;
 	private TutorBlockAdapter adapter;
 	private Button filterButton;
@@ -74,18 +77,22 @@ public class TutorBrowser extends Activity {
 	private void loadFilters() {
 		String json = saver.retreiveJSONString("filters");
 		System.out.println(json);
-		ArrayList<Filter> filters = FilterCreator.deserializeJSONString(json);
-		
-		if (filters == null)
-			filters = new ArrayList<Filter>();
 		
 		String loc, sub;
 		loc = sub = "";
-		for (int i = 0 ; i < filters.size() ; i++) {
-			if (filters.get(i).getType() == FilterType.LOCATION) {
-				loc = API.stringFromLocation((Location) filters.get(i).getValue());
-			} else {
-				sub = (String) filters.get(i).getValue();
+		
+		if (!json.equalsIgnoreCase("")) {
+			ArrayList<Filter> filters = FilterCreator.deserializeJSONString(json);
+			
+			if (filters == null)
+				filters = new ArrayList<Filter>();
+			
+			for (int i = 0 ; i < filters.size() ; i++) {
+				if (filters.get(i).getType() == FilterType.LOCATION) {
+					loc = API.stringFromLocation((Location) filters.get(i).getValue());
+				} else {
+					sub = (String) filters.get(i).getValue();
+				}
 			}
 		}
 		
@@ -114,7 +121,14 @@ public class TutorBrowser extends Activity {
 			TutorBlock block = (TutorBlock) data.getSerializableExtra("data");
 			Intent i = new Intent(this, AppointmentCreator.class);
 			i.putExtra("data", block);
-			startActivity(i);
+			startActivityForResult(i, APPOINTMENT_CREATION_REQUESTED);
+		} else if (reqCode == APPOINTMENT_CREATION_REQUESTED && resCode == RESULT_OK) {
+			
+			StudentAppointment appt = (StudentAppointment) data.getSerializableExtra("StudentAppointment");
+			StudentAppointmentQueue tempQueue = new StudentAppointmentQueue(this);
+			tempQueue.buildQueueFromFile();
+			tempQueue.addDataSetToQueue(appt);
+			startActivity(new Intent(getApplicationContext(), StudentAppointmentManager.class));
 		}
 	}
 

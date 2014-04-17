@@ -168,7 +168,7 @@ public class StudentAppointmentQueue implements Serializable {
 
 		// obtain storage directory and file for the aptmtQueue
 		File folder = new File(Environment.getExternalStorageDirectory()
-				+ "/ExcaliburApps");
+				+ "/TutorTrack");
 		if (!folder.exists()) {
 			aptmtQueue.addAll(backupQueue);
 			mirrorQueue.addAll(backupQueue);
