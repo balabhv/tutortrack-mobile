@@ -92,7 +92,7 @@ public class FilterCreator extends Activity {
 		subjectCount = prefs.getInt("subject_count", 0);
 		String json = saver.retreiveJSONString("filters");
 		System.out.println(json);
-		
+
 		if (!json.equalsIgnoreCase("")) {
 			filters = FilterCreator.deserializeJSONString(json);
 			this.loadFiltersFromPreferences();
@@ -236,20 +236,23 @@ public class FilterCreator extends Activity {
 				editor.putInt("location_count", locationCount);
 				editor.commit();
 
-			} else
+			} else {
 				Toast.makeText(getApplicationContext(),
 						"One Location Filter Only", Toast.LENGTH_SHORT).show();
-			return;
+				return;
+			}
 		} else if (pos == FilterCreator.FILTER_TYPE_SUBJECT) {
 			if (this.subjectCount == 0) {
 				subjectCount = 1;
 				SharedPreferences.Editor editor = prefs.edit();
 				editor.putInt("subject_count", subjectCount);
 				editor.commit();
-			} else
+			} else {
 				Toast.makeText(getApplicationContext(),
 						"One Subject Filter Only", Toast.LENGTH_SHORT).show();
-			return;
+				return;
+			}
+
 		}
 
 		addFilterOfType(pos);
@@ -320,7 +323,7 @@ public class FilterCreator extends Activity {
 			}
 		});
 
-		if (pos == FILTER_TYPE_LOCATION) {
+		if (f.getType() == FilterType.LOCATION) {
 			t.setText("Location is:");
 			String[] myResArray = getResources().getStringArray(
 					R.array.location_array);
@@ -329,8 +332,7 @@ public class FilterCreator extends Activity {
 					myResArray);
 			s.setAdapter(spinnerArrayAdapter);
 			Location l = (Location) f.getValue();
-			s.setSelection(Arrays.asList(myResArray).indexOf(
-					API.stringFromLocation(l)));
+			s.setSelection(Arrays.asList(myResArray).indexOf(API.stringFromLocation(l)));
 		} else {
 			t.setText("Subject is:");
 			String[] myResArray = getResources().getStringArray(
@@ -377,5 +379,4 @@ public class FilterCreator extends Activity {
 		scrollDown();
 
 	}
-
 }

@@ -53,11 +53,15 @@
             android:background="@drawable/custom_button"
             android:text="@string/manage_appointments" />
 
-        <Space
-            android:id="@+id/Space5"
+        <Button
+            android:id="@+id/logout_button"
+            style="@style/ButtonText"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1" />
+            android:layout_marginBottom="15dp"
+            android:layout_weight="1"
+            android:background="@drawable/custom_button"
+            android:text="@string/logout_string" />
     </LinearLayout>
 
 </RelativeLayout>

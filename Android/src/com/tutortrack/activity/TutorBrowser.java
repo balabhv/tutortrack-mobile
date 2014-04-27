@@ -19,8 +19,6 @@ import com.tutortrack.api.API;
 import com.tutortrack.api.API.Location;
 import com.tutortrack.api.Filter;
 import com.tutortrack.api.Filter.FilterType;
-import com.tutortrack.api.student.StudentAppointment;
-import com.tutortrack.api.student.StudentAppointmentQueue;
 import com.tutortrack.api.student.TutorBlock;
 import com.tutortrack.api.student.TutorBlockAdapter;
 import com.tutortrack.api.utils.SharedPreferencesExecutor;
@@ -123,12 +121,7 @@ public class TutorBrowser extends Activity {
 			i.putExtra("data", block);
 			startActivityForResult(i, APPOINTMENT_CREATION_REQUESTED);
 		} else if (reqCode == APPOINTMENT_CREATION_REQUESTED && resCode == RESULT_OK) {
-			
-			StudentAppointment appt = (StudentAppointment) data.getSerializableExtra("StudentAppointment");
-			StudentAppointmentQueue tempQueue = new StudentAppointmentQueue(this);
-			tempQueue.buildQueueFromFile();
-			tempQueue.addDataSetToQueue(appt);
-			startActivity(new Intent(getApplicationContext(), StudentAppointmentManager.class));
+			startActivity(new Intent(this, StudentAppointmentManager.class));
 		}
 	}
 

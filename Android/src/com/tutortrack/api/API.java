@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -15,6 +16,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
@@ -87,11 +89,11 @@ public class API {
 	public static String stringFromLocation(Location l) {
 		switch (l) {
 		case NORTH:
-			return "North";
+			return "NORTH";
 		case SOUTH:
-			return "South";
+			return "SOUTH";
 		case EAST:
-			return "East";
+			return "EAST";
 		case ICC:
 			return "ICC";
 		case NONE:
@@ -164,6 +166,10 @@ public class API {
 		}
 
 		return null;
+	}
+	
+	public void deleteSession() {
+		currentUser = null;
 	}
 
 	public static User getCurrentUser() {
@@ -261,26 +267,90 @@ public class API {
 		StudentAppointment appt = new StudentAppointment(when, subjects, getTutor(tutor.getName()), loc);
 		JSONObject obj = new JSONObject();
 		try {
-			obj.put("student_email", currentUser.getEmail());
-			obj.put("student_password", currentUser.getPassword());
+			obj.put("studentEmail", currentUser.getEmail());
+			obj.put("studentPassword", currentUser.getPassword());
 			obj.put("date", appt.getDate());
 			obj.put("time", appt.getTime());
 			obj.put("location", API.stringFromLocation(loc));
 			obj.put("subjects", appt.getSubjectString());
 			JSONObject tutorJSON = User.JSONFromTutorUser(tutor);
 			obj.put("tutor", tutorJSON);
-			String httpresp = makeRequest(baseUrl, "appointments/makeAppointmentWithTutor", "", "POST", obj);
-			JSONObject res = new JSONObject(httpresp);
-			String success = res.getString("message");
-			if (success.equalsIgnoreCase("Operation Succeeded!")) {
-				return appt;
-			}
+			makeRequest(baseUrl, "appointments/makeAppointmentWithTutor", "", "POST", obj);
+			return appt;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public ArrayList<StudentAppointment> getAppointmentsForStudent(User student) {
+		ArrayList<StudentAppointment> results = new ArrayList<StudentAppointment>();
 		
-		return null;
+		try {
+			String res = this.makeRequest(baseUrl, "appointments/getStudentAppointments", "email=" + URLEncoder.encode(student.getEmail(), "UTF-8") + "&password="
+					+ URLEncoder.encode(student.getPassword(), "UTF-8"), "GET", null);
+			JSONObject ret = new JSONObject(res);
+			JSONArray r = ret.getJSONArray("items");
+			
+			for (int i = 0 ; i < r.length() ; ++i) {
+				JSONObject apptJSON = r.getJSONObject(i);
+				StudentAppointment appt = StudentAppointment.AppointmentFromJSON(apptJSON);
+				results.add(appt);
+			}
+			
+			return results;
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return new ArrayList<StudentAppointment>();
+		} catch (JSONException e) {
+			e.printStackTrace();
+			return new ArrayList<StudentAppointment>();
+		}
+	}
+	
+	public boolean editStudentAppointment(StudentAppointment orig, StudentAppointment appt) {
+		JSONObject obj = new JSONObject();
+		try {
+			JSONObject original = StudentAppointment.JSONFromAppointment(orig);
+			JSONObject edited = StudentAppointment.JSONFromAppointment(appt);
+			obj.put("orig", original);
+			obj.put("edited", edited);
+			String httpresp = makeRequest(baseUrl, "appointments/editAppointment", "", "POST", obj);
+			JSONObject res = new JSONObject(httpresp);
+			String success = res.getString("message");
+			if (success.equalsIgnoreCase("Operation Succeeded!")) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+	}
+	
+	public void cancelStudentAppointment(StudentAppointment appt) {
+		JSONObject obj = new JSONObject();
+		try {
+			obj.put("studentEmail", currentUser.getEmail());
+			obj.put("studentPassword", currentUser.getPassword());
+			obj.put("date", appt.getDate());
+			obj.put("time", appt.getTime());
+			obj.put("location", API.stringFromLocation(appt.getWhere()));
+			obj.put("subjects", appt.getSubjectString());
+			JSONObject tutorJSON = User.JSONFromTutorUser(appt.getWithWho());
+			obj.put("tutor", tutorJSON);
+			String httpresp = makeRequest(baseUrl, "appointments/cancelStudentAppointment", "", "POST", obj);
+			JSONObject res = new JSONObject(httpresp);
+			String success = res.getString("message");
+			if (success.equalsIgnoreCase("Operation Succeeded!")) {
+				//return appt;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 	private String makeRequest(String baseURL, String path, String parameters,

@@ -11,13 +11,14 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tutortrack.R;
 import com.tutortrack.api.API;
 
 public class StudentMain extends Activity {
 	
-	private Button viewTutorsButton, manageAppointmentsButton;
+	private Button viewTutorsButton, manageAppointmentsButton, logout;
 	private TextView logged_in_as;
 	
 	@Override
@@ -48,8 +49,29 @@ public class StudentMain extends Activity {
 			}
 		});
 		
-		logged_in_as.setText("Logged in as: " + API.getCurrentUser().getName());	
+		logged_in_as.setText("Logged in as: " + API.getCurrentUser().getName());
 		
+		logout = (Button) findViewById(R.id.logout_button);
+		logout.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				onBackPressed();				
+			}
+		});
+		
+		
+		
+	}
+	
+	@Override
+	public void onBackPressed() {
+		API.getInstance().deleteSession();
+		Intent setIntent = new Intent(this, MainActivity.class);
+		setIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		setIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		Toast.makeText(this, "Logged out", Toast.LENGTH_SHORT).show();
+		startActivity(setIntent);
 	}
 	
 	public void onResume() {

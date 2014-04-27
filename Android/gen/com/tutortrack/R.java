@@ -45,7 +45,6 @@ public final class R {
         public static final int Space2=0x7f0a0040;
         public static final int Space3=0x7f0a0044;
         public static final int Space4=0x7f0a0031;
-        public static final int Space5=0x7f0a0035;
         public static final int action_settings=0x7f0a0047;
         public static final int add_filter_button=0x7f0a0003;
         public static final int admin_login_button=0x7f0a001a;
@@ -84,6 +83,7 @@ public final class R {
         public static final int formpart2=0x7f0a001e;
         public static final int linearButtonLayout=0x7f0a003c;
         public static final int listView1=0x7f0a003b;
+        public static final int logout_button=0x7f0a0035;
         public static final int manage_appointments_button=0x7f0a0043;
         public static final int manage_appointments_button2=0x7f0a0034;
         public static final int message=0x7f0a0026;
@@ -132,29 +132,30 @@ public final class R {
     public static final class string {
         public static final int action_settings=0x7f060001;
         public static final int add_appointment=0x7f060002;
-        public static final int add_filter=0x7f060013;
+        public static final int add_filter=0x7f060014;
         public static final int app_name=0x7f060000;
         public static final int appointments=0x7f060003;
-        public static final int blank_desc=0x7f060015;
+        public static final int blank_desc=0x7f060016;
         public static final int cancel_item=0x7f06000f;
         public static final int edit_appointment=0x7f06000e;
         public static final int edit_timeslot=0x7f060004;
         public static final int filter=0x7f060010;
         public static final int filter_type=0x7f060012;
-        public static final int filters=0x7f060014;
+        public static final int filters=0x7f060015;
         public static final int hello_world=0x7f060005;
         public static final int logged_in_as=0x7f060006;
         public static final int login=0x7f06000a;
         public static final int login_as_admin=0x7f060009;
         public static final int login_as_student=0x7f060007;
         public static final int login_as_tutor=0x7f060008;
-        public static final int make_appointment_string=0x7f060018;
+        public static final int logout_string=0x7f060013;
+        public static final int make_appointment_string=0x7f060019;
         public static final int manage_appointments=0x7f06000b;
         public static final int password=0x7f06000c;
-        public static final int select_one=0x7f060016;
+        public static final int select_one=0x7f060017;
         public static final int username=0x7f06000d;
         public static final int view_tutors=0x7f060011;
-        public static final int welcome=0x7f060017;
+        public static final int welcome=0x7f060018;
     }
     public static final class style {
         /** 
