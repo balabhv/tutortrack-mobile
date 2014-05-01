@@ -16,13 +16,14 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.tutortrack.R;
 import com.tutortrack.api.API;
 import com.tutortrack.api.Subject;
 import com.tutortrack.api.student.StudentAppointment;
 import com.tutortrack.api.student.TutorBlock;
+import com.tutortrack.control.RangeTimePicker;
 
 public class AppointmentCreator extends Activity {
 
@@ -69,7 +70,7 @@ public class AppointmentCreator extends Activity {
 	private TextView tutorNameLbl;
 	private LinearLayout subjectCheckBoxLayout;
 	private DatePicker dateCalendar;
-	private TimePicker timePicker;
+	private RangeTimePicker timePicker;
 	private Button ok, cancel;
 	private ArrayList<CheckBox> subjectCheckBoxes = new ArrayList<CheckBox>();
 	private ArrayList<Subject> subj;
@@ -97,9 +98,12 @@ public class AppointmentCreator extends Activity {
 		dateCalendar.setMinDate(block.getStartDate().getTimeInMillis());
 		dateCalendar.setMaxDate(block.getEndDate().getTimeInMillis());
 		dateCalendar.setCalendarViewShown(true);
+		dateCalendar.setSpinnersShown(false);
 
-		timePicker = (TimePicker) findViewById(R.id.timePicker);
+		timePicker = (RangeTimePicker) findViewById(R.id.timePicker);
 		timePicker.setIs24HourView(false);
+		timePicker.setMin(block.getStartTime().get(Calendar.HOUR_OF_DAY), block.getStartTime().get(Calendar.MINUTE));
+		timePicker.setMax(block.getEndTime().get(Calendar.HOUR_OF_DAY), block.getEndTime().get(Calendar.MINUTE));
 
 		apptDate = new GregorianCalendar();
 		apptTime = new GregorianCalendar();
@@ -140,14 +144,11 @@ public class AppointmentCreator extends Activity {
 						subj.add(block.getSubjects().get(i));
 					}
 				}
-				/*
-				 * if (apptTime.before(block.getStartTime()) ||
-				 * apptTime.after(block.getEndTime())) {
-				 * Toast.makeText(AppointmentCreator.this,
-				 * "Selected time is outside of the selected timeslot",
-				 * Toast.LENGTH_SHORT).show(); return; }
-				 */
-				new MakeAppointmentTask(AppointmentCreator.this).execute();
+				
+				if (subj.size() > 0)
+					new MakeAppointmentTask(AppointmentCreator.this).execute();
+				else
+					Toast.makeText(AppointmentCreator.this, "No subjects selected", Toast.LENGTH_SHORT).show();
 
 			}
 		});

@@ -16,13 +16,14 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.tutortrack.R;
 import com.tutortrack.api.API;
 import com.tutortrack.api.Subject;
 import com.tutortrack.api.student.StudentAppointment;
 import com.tutortrack.api.student.TutorBlock;
+import com.tutortrack.control.RangeTimePicker;
 
 public class AppointmentEditor extends Activity {
 
@@ -66,7 +67,7 @@ public class AppointmentEditor extends Activity {
 	private TextView tutorNameLbl;
 	private LinearLayout subjectCheckBoxLayout;
 	private DatePicker dateCalendar;
-	private TimePicker timePicker;
+	private RangeTimePicker timePicker;
 	private Button ok, cancel;
 	private ArrayList<CheckBox> subjectCheckBoxes = new ArrayList<CheckBox>();
 	private ArrayList<Subject> subj;
@@ -93,6 +94,8 @@ public class AppointmentEditor extends Activity {
 
 		subjectCheckBoxLayout = (LinearLayout) findViewById(R.id.subjectCheckBoxLayout);
 		dateCalendar = (DatePicker) findViewById(R.id.datePicker);
+		dateCalendar.setCalendarViewShown(true);
+		dateCalendar.setSpinnersShown(false);
 		dateCalendar.setMinDate(block.getStartDate().getTimeInMillis());
 		dateCalendar.setMaxDate(block.getEndDate().getTimeInMillis());
 		dateCalendar.setCalendarViewShown(true);
@@ -100,11 +103,14 @@ public class AppointmentEditor extends Activity {
 				.getWhen().get(Calendar.MONTH),
 				orig.getWhen().get(Calendar.DATE));
 
-		timePicker = (TimePicker) findViewById(R.id.timePicker);
+		timePicker = (RangeTimePicker) findViewById(R.id.timePicker);
 		timePicker.setIs24HourView(false);
+		timePicker.setMin(block.getStartTime().get(Calendar.HOUR_OF_DAY), block
+				.getStartTime().get(Calendar.MINUTE));
+		timePicker.setMax(block.getEndTime().get(Calendar.HOUR_OF_DAY), block
+				.getEndTime().get(Calendar.MINUTE));
 		timePicker.setCurrentHour(orig.getWhen().get(Calendar.HOUR_OF_DAY));
 		timePicker.setCurrentMinute(orig.getWhen().get(Calendar.MINUTE));
-		
 
 		apptDate = new GregorianCalendar();
 		apptTime = new GregorianCalendar();
@@ -112,6 +118,12 @@ public class AppointmentEditor extends Activity {
 		for (Subject s : block.getSubjects()) {
 			CheckBox feature1 = new CheckBox(this);
 			feature1.setText(s.toString());
+			System.out.println("Subject: " + s.toString());
+			for (Subject s1 : orig.getSubjects()) {
+				if (s1.toString().equalsIgnoreCase(s.toString())) {
+					feature1.setChecked(true);
+				}
+			}
 			subjectCheckBoxes.add(feature1);
 			subjectCheckBoxLayout.addView(feature1);
 		}
@@ -133,7 +145,9 @@ public class AppointmentEditor extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				apptDate.set(dateCalendar.getYear(), dateCalendar.getMonth()+1,
+
+				apptDate.set(dateCalendar.getYear(),
+						dateCalendar.getMonth() + 1,
 						dateCalendar.getDayOfMonth());
 				apptTime.set(Calendar.HOUR_OF_DAY, timePicker.getCurrentHour());
 				apptTime.set(Calendar.MINUTE, timePicker.getCurrentMinute());
@@ -145,18 +159,21 @@ public class AppointmentEditor extends Activity {
 						subj.add(block.getSubjects().get(i));
 					}
 				}
-				/*
-				 * if (apptTime.before(block.getStartTime()) ||
-				 * apptTime.after(block.getEndTime())) {
-				 * Toast.makeText(AppointmentCreator.this,
-				 * "Selected time is outside of the selected timeslot",
-				 * Toast.LENGTH_SHORT).show(); return; }
-				 */
-				Calendar when = new GregorianCalendar();
-				when.set(apptDate.get(Calendar.YEAR), apptDate.get(Calendar.MONTH), apptDate.get(Calendar.DATE), apptTime.get(Calendar.HOUR_OF_DAY), apptTime.get(Calendar.MINUTE), apptTime.get(Calendar.SECOND));
-				edited = new StudentAppointment(when, subj, orig.getWithWho(), orig.getWhere());
-				 new EditAppointmentTask(AppointmentEditor.this).execute();
 
+				if (subj.size() > 0) {
+					Calendar when = new GregorianCalendar();
+					when.set(apptDate.get(Calendar.YEAR),
+							apptDate.get(Calendar.MONTH),
+							apptDate.get(Calendar.DATE),
+							apptTime.get(Calendar.HOUR_OF_DAY),
+							apptTime.get(Calendar.MINUTE),
+							apptTime.get(Calendar.SECOND));
+					edited = new StudentAppointment(when, subj, orig
+							.getWithWho(), orig.getWhere());
+					new EditAppointmentTask(AppointmentEditor.this).execute();
+				} else {
+					Toast.makeText(AppointmentEditor.this, "No subjects selected", Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 

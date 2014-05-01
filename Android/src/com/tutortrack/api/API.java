@@ -167,7 +167,7 @@ public class API {
 
 		return null;
 	}
-	
+
 	public void deleteSession() {
 		currentUser = null;
 	}
@@ -260,11 +260,16 @@ public class API {
 
 		return null;
 	}
-	
-	public StudentAppointment makeAppointmentWithTutor(User tutor, Calendar date, Calendar time, Location loc, ArrayList<Subject> subjects) {
+
+	public StudentAppointment makeAppointmentWithTutor(User tutor,
+			Calendar date, Calendar time, Location loc,
+			ArrayList<Subject> subjects) {
 		Calendar when = new GregorianCalendar();
-		when.set(date.get(Calendar.YEAR), date.get(Calendar.MONTH), date.get(Calendar.DATE), time.get(Calendar.HOUR_OF_DAY), time.get(Calendar.MINUTE), time.get(Calendar.SECOND));
-		StudentAppointment appt = new StudentAppointment(when, subjects, getTutor(tutor.getName()), loc);
+		when.set(date.get(Calendar.YEAR), date.get(Calendar.MONTH),
+				date.get(Calendar.DATE), time.get(Calendar.HOUR_OF_DAY),
+				time.get(Calendar.MINUTE), time.get(Calendar.SECOND));
+		StudentAppointment appt = new StudentAppointment(when, subjects,
+				getTutor(tutor.getName()), loc);
 		JSONObject obj = new JSONObject();
 		try {
 			obj.put("studentEmail", currentUser.getEmail());
@@ -275,29 +280,39 @@ public class API {
 			obj.put("subjects", appt.getSubjectString());
 			JSONObject tutorJSON = User.JSONFromTutorUser(tutor);
 			obj.put("tutor", tutorJSON);
-			makeRequest(baseUrl, "appointments/makeAppointmentWithTutor", "", "POST", obj);
+			makeRequest(baseUrl, "appointments/makeAppointmentWithTutor", "",
+					"POST", obj);
 			return appt;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
-	
+
 	public ArrayList<StudentAppointment> getAppointmentsForStudent(User student) {
 		ArrayList<StudentAppointment> results = new ArrayList<StudentAppointment>();
-		
+
 		try {
-			String res = this.makeRequest(baseUrl, "appointments/getStudentAppointments", "email=" + URLEncoder.encode(student.getEmail(), "UTF-8") + "&password="
-					+ URLEncoder.encode(student.getPassword(), "UTF-8"), "GET", null);
+			String res = this
+					.makeRequest(
+							baseUrl,
+							"appointments/getStudentAppointments",
+							"email="
+									+ URLEncoder.encode(student.getEmail(),
+											"UTF-8")
+									+ "&password="
+									+ URLEncoder.encode(student.getPassword(),
+											"UTF-8"), "GET", null);
 			JSONObject ret = new JSONObject(res);
 			JSONArray r = ret.getJSONArray("items");
-			
-			for (int i = 0 ; i < r.length() ; ++i) {
+
+			for (int i = 0; i < r.length(); ++i) {
 				JSONObject apptJSON = r.getJSONObject(i);
-				StudentAppointment appt = StudentAppointment.AppointmentFromJSON(apptJSON);
+				StudentAppointment appt = StudentAppointment
+						.AppointmentFromJSON(apptJSON);
 				results.add(appt);
 			}
-			
+
 			return results;
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
@@ -307,15 +322,17 @@ public class API {
 			return new ArrayList<StudentAppointment>();
 		}
 	}
-	
-	public boolean editStudentAppointment(StudentAppointment orig, StudentAppointment appt) {
+
+	public boolean editStudentAppointment(StudentAppointment orig,
+			StudentAppointment appt) {
 		JSONObject obj = new JSONObject();
 		try {
 			JSONObject original = StudentAppointment.JSONFromAppointment(orig);
 			JSONObject edited = StudentAppointment.JSONFromAppointment(appt);
 			obj.put("orig", original);
 			obj.put("edited", edited);
-			String httpresp = makeRequest(baseUrl, "appointments/editAppointment", "", "POST", obj);
+			String httpresp = makeRequest(baseUrl,
+					"appointments/editAppointment", "", "POST", obj);
 			JSONObject res = new JSONObject(httpresp);
 			String success = res.getString("message");
 			if (success.equalsIgnoreCase("Operation Succeeded!")) {
@@ -327,9 +344,9 @@ public class API {
 			e.printStackTrace();
 			return false;
 		}
-		
+
 	}
-	
+
 	public void cancelStudentAppointment(StudentAppointment appt) {
 		JSONObject obj = new JSONObject();
 		try {
@@ -341,16 +358,62 @@ public class API {
 			obj.put("subjects", appt.getSubjectString());
 			JSONObject tutorJSON = User.JSONFromTutorUser(appt.getWithWho());
 			obj.put("tutor", tutorJSON);
-			String httpresp = makeRequest(baseUrl, "appointments/cancelStudentAppointment", "", "POST", obj);
+			String httpresp = makeRequest(baseUrl,
+					"appointments/cancelStudentAppointment", "", "POST", obj);
 			JSONObject res = new JSONObject(httpresp);
 			String success = res.getString("message");
 			if (success.equalsIgnoreCase("Operation Succeeded!")) {
-				//return appt;
+				// return appt;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+	}
+
+	@SuppressLint("SimpleDateFormat")
+	public TutorBlock getTutorBlockForTutor(User withWho) {
 		
+		SimpleDateFormat dateformat = new SimpleDateFormat("MM/dd/yy");
+		SimpleDateFormat timeformat = new SimpleDateFormat("h a");
+		
+		try {
+			String parameters = "tutor_email="
+					+ URLEncoder.encode(withWho.getEmail(), "UTF-8")
+					+ "&tutor_password="
+					+ URLEncoder.encode(withWho.getPassword(), "UTF-8");
+			String response = makeRequest(baseUrl, "tutors/getBlock",
+					parameters, "GET", null);
+			JSONObject obj = new JSONObject(response);
+			JSONObject tutor = obj.getJSONObject("tutor");
+			String startD = obj.getString("startDate");
+			String endD = obj.getString("endDate");
+			String startT = obj.getString("startTime");
+			String endT = obj.getString("endTime");
+			String location = obj.getString("location");
+			String tempsub = obj.getString("subjects");
+
+			Calendar startDate = Calendar.getInstance();
+			startDate.setTime(dateformat.parse(startD));
+			Calendar endDate = Calendar.getInstance();
+			endDate.setTime(dateformat.parse(endD));
+			Calendar startTime = Calendar.getInstance();
+			startTime.setTime(timeformat.parse(startT));
+			Calendar endTime = Calendar.getInstance();
+			endTime.setTime(timeformat.parse(endT));
+			Location tutorLoc = API.locationFromString(location);
+			String[] parts = tempsub.split(", ");
+			ArrayList<Subject> subjects = new ArrayList<Subject>();
+			for (String sub : parts) {
+				subjects.add(new Subject(sub));
+			}
+
+			User u = User.tutorFromJSON(tutor);
+			return new TutorBlock(u, subjects, startDate,
+					endDate, startTime, endTime, tutorLoc);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	private String makeRequest(String baseURL, String path, String parameters,

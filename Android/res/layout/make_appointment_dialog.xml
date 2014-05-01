@@ -58,35 +58,60 @@
                 android:orientation="vertical" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/dateLbl"
+        <LinearLayout
+            android:id="@+id/dateTimeLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Select Date:"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp" />
+            android:layout_gravity="center"
+            android:baselineAligned="false"
+            android:orientation="horizontal" >
 
-        <DatePicker
-            android:id="@+id/datePicker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="5dp" />
+            <LinearLayout
+                android:id="@+id/dateLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/timeLbl"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select Time:"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="15dp" />
+                <TextView
+                    android:id="@+id/dateLbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:text="Select Date:" />
 
-        <TimePicker
-            android:id="@+id/timePicker"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="5dp" />
+                <DatePicker
+                    android:id="@+id/datePicker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="5dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/timeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/timeLbl"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="15dp"
+                    android:text="Select Time:" />
+
+                <com.tutortrack.control.RangeTimePicker
+                    android:id="@+id/timePicker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="5dp" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <View

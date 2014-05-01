@@ -20,7 +20,6 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -28,13 +27,14 @@ import com.tutortrack.R;
 import com.tutortrack.api.API;
 import com.tutortrack.api.student.StudentAppointment;
 import com.tutortrack.api.student.StudentAppointmentQueue;
+import com.tutortrack.api.student.TutorBlock;
+import com.tutortrack.dialog.AppointmentEditor;
 
 public class StudentAppointmentManager extends Activity {
 
 	public static StudentAppointmentQueue queue;
 
 	private static LinearLayout scrollQueue;
-	private Button add;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -45,17 +45,6 @@ public class StudentAppointmentManager extends Activity {
 		queue = new StudentAppointmentQueue(this.getApplicationContext());
 
 		fillScrollQueue();
-
-		add = (Button) findViewById(R.id.button_add);
-
-		add.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				// queue.addDataSetToQueue(tempAppt);
-				fillScrollQueue();
-			}
-		});
 
 	}
 
@@ -182,7 +171,7 @@ public class StudentAppointmentManager extends Activity {
 	public void deleteViewFromQueue(int id) {
 		StudentAppointment ds = queue.removeItemWithKey(id);
 		new cancelAppointmentTask(this).execute(ds);
-		
+
 	}
 
 	public boolean onContextItemSelected(MenuItem item) {
@@ -199,7 +188,7 @@ public class StudentAppointmentManager extends Activity {
 
 	private void editAppointment(int itemId) {
 		LinkedList<StudentAppointment> backup = new LinkedList<StudentAppointment>();
-		StudentAppointment apptToEdit;
+		StudentAppointment apptToEdit = null;
 		backup.addAll(queue.aptmtQueue);
 		for (StudentAppointment ds : backup) {
 			if (ds.APTMT_ID == itemId) {
@@ -207,7 +196,7 @@ public class StudentAppointmentManager extends Activity {
 				break;
 			}
 		}
-
+		new getTutorBlockTask(this).execute(apptToEdit);
 	}
 
 	public class loadAppointmentsFromWebTask extends
@@ -253,14 +242,16 @@ public class StudentAppointmentManager extends Activity {
 
 	}
 
-	public class cancelAppointmentTask extends AsyncTask<StudentAppointment, Void, Void> {
+	public class cancelAppointmentTask extends
+			AsyncTask<StudentAppointment, Void, Void> {
 
 		Context _context;
 		ProgressDialog p;
 
 		public cancelAppointmentTask(Context c) {
 			super();
-			p = ProgressDialog.show(c, "", "Canceling Appointment...", true, false);
+			p = ProgressDialog.show(c, "", "Canceling Appointment...", true,
+					false);
 			_context = c;
 		}
 
@@ -280,6 +271,45 @@ public class StudentAppointmentManager extends Activity {
 		public void onPostExecute(Void res) {
 			p.cancel();
 			fillScrollQueue();
+
+		}
+
+	}
+
+	public class getTutorBlockTask extends
+			AsyncTask<StudentAppointment, Void, Void> {
+
+		Context _context;
+		ProgressDialog p;
+		TutorBlock block;
+		StudentAppointment orig;
+
+		public getTutorBlockTask(Context c) {
+			super();
+			p = ProgressDialog.show(c, "", "Opening Appointment Editor...",
+					true, false);
+			_context = c;
+		}
+
+		public void onPreExecute() {
+			p.show();
+		}
+
+		@Override
+		protected Void doInBackground(StudentAppointment... arg0) {
+			orig = arg0[0];
+			block = API.getInstance().getTutorBlockForTutor(orig.getWithWho());
+
+			return null;
+
+		}
+
+		public void onPostExecute(Void res) {
+			p.cancel();
+			Intent i = new Intent(_context, AppointmentEditor.class);
+			i.putExtra("original", orig);
+			i.putExtra("block", block);
+			startActivity(i);
 
 		}
 
