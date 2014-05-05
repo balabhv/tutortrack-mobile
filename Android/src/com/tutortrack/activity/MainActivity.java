@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.main);
 
 		API.mainActivity = this;
-		API.setUseDev(true);
+		API.setUseDev(false);
 		
 		if(!API.hasConnectivity()) {
 			// no connectivity warning here

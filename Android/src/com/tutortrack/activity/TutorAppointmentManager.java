@@ -1,10 +1,5 @@
 package com.tutortrack.activity;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
-
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.res.TypedArray;
@@ -18,15 +13,10 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnLongClickListener;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tutortrack.R;
-import com.tutortrack.api.API.Location;
-import com.tutortrack.api.Subject;
-import com.tutortrack.api.User;
-import com.tutortrack.api.User.UserType;
 import com.tutortrack.api.tutor.TutorAppointment;
 import com.tutortrack.api.tutor.TutorAppointmentQueue;
 
@@ -35,7 +25,6 @@ public class TutorAppointmentManager extends Activity {
 	public static TutorAppointmentQueue queue;
 
 	private static LinearLayout scrollQueue;
-	private Button add;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -53,40 +42,8 @@ public class TutorAppointmentManager extends Activity {
 
 		fillScrollQueue();
 
-		add = (Button) findViewById(R.id.button_add);
-
-		add.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				User tempU = new User();
-				tempU.setName("Bob Jones");
-				tempU.setEmail("bob_jones@student.uml.edu");
-				tempU.setType(UserType.STUDENT);
-				Calendar t = new GregorianCalendar(TimeZone.getDefault());
-				t.set(2014, 5, 21, 19, 30, 0);
-				Subject a = new Subject("Circuit Theory I");
-				Subject b = new Subject("Circuit Theory II");
-				Subject c = new Subject("Computing I");
-				Subject d = new Subject("Computing II");
-				Subject e = new Subject("Computing III");
-				Subject f = new Subject("Computing IV");
-				ArrayList<Subject> s = new ArrayList<Subject>();
-				s.add(a);
-				s.add(b);
-				s.add(c);
-				s.add(d);
-				s.add(e);
-				s.add(f);
-				TutorAppointment tempAppt = new TutorAppointment(t, s, tempU,
-						Location.EAST);
-				queue.addDataSetToQueue(tempAppt);
-				fillScrollQueue();
-			}
-		});
-
 	}
-	
+
 	public void onResume() {
 		super.onResume();
 
@@ -100,7 +57,7 @@ public class TutorAppointmentManager extends Activity {
 			bar.setDisplayUseLogoEnabled(true);
 			bar.setDisplayShowTitleEnabled(false);
 		}
-		
+
 	}
 
 	private Drawable resize(Drawable image) {

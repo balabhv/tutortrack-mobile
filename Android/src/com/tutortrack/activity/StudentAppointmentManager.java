@@ -1,42 +1,40 @@
 package com.tutortrack.activity;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
+import java.util.LinkedList;
+import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnLongClickListener;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.tutortrack.R;
-import com.tutortrack.api.API.Location;
-import com.tutortrack.api.Subject;
-import com.tutortrack.api.User;
-import com.tutortrack.api.User.UserType;
+import com.tutortrack.api.API;
 import com.tutortrack.api.student.StudentAppointment;
 import com.tutortrack.api.student.StudentAppointmentQueue;
+import com.tutortrack.api.student.TutorBlock;
+import com.tutortrack.dialog.AppointmentEditor;
 
 public class StudentAppointmentManager extends Activity {
 
 	public static StudentAppointmentQueue queue;
 
 	private static LinearLayout scrollQueue;
-	private Button add;
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -46,48 +44,10 @@ public class StudentAppointmentManager extends Activity {
 
 		queue = new StudentAppointmentQueue(this.getApplicationContext());
 
-		boolean success = queue.buildQueueFromFile();
-
-		if (!success) {
-			Log.e("ERROR", "Error building queue from file");
-		}
-
 		fillScrollQueue();
 
-		add = (Button) findViewById(R.id.button_add);
-
-		add.setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				User tempU = new User();
-				tempU.setName("Bob Jones");
-				tempU.setEmail("bob_jones@student.uml.edu");
-				tempU.setType(UserType.STUDENT);
-				Calendar t = new GregorianCalendar(TimeZone.getDefault());
-				t.set(2014, 5, 21, 19, 30, 0);
-				Subject a = new Subject("Circuit Theory I");
-				Subject b = new Subject("Circuit Theory II");
-				Subject c = new Subject("Computing I");
-				Subject d = new Subject("Computing II");
-				Subject e = new Subject("Computing III");
-				Subject f = new Subject("Computing IV");
-				ArrayList<Subject> s = new ArrayList<Subject>();
-				s.add(a);
-				s.add(b);
-				s.add(c);
-				s.add(d);
-				s.add(e);
-				s.add(f);
-				StudentAppointment tempAppt = new StudentAppointment(t, s, tempU,
-						Location.EAST);
-				queue.addDataSetToQueue(tempAppt);
-				fillScrollQueue();
-			}
-		});
-
 	}
-	
+
 	public void onResume() {
 		super.onResume();
 
@@ -101,7 +61,13 @@ public class StudentAppointmentManager extends Activity {
 			bar.setDisplayUseLogoEnabled(true);
 			bar.setDisplayShowTitleEnabled(false);
 		}
-		
+
+		this.fillQueueFromDatastore();
+
+	}
+
+	public void fillQueueFromDatastore() {
+		new loadAppointmentsFromWebTask(this).execute();
 	}
 
 	private Drawable resize(Drawable image) {
@@ -127,13 +93,13 @@ public class StudentAppointmentManager extends Activity {
 			addViewToScrollQueue(ds);
 
 	}
-	
+
 	@Override
 	public void onBackPressed() {
-	   Intent setIntent = new Intent(this, StudentMain.class);
-	   setIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-	   setIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-	   startActivity(setIntent);
+		Intent setIntent = new Intent(this, StudentMain.class);
+		setIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		setIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		startActivity(setIntent);
 	}
 
 	// Fills the text fields in the list element blocks
@@ -179,6 +145,7 @@ public class StudentAppointmentManager extends Activity {
 				.getName());
 
 		scrollQueue.addView(data, layoutParams);
+		data.setId(ds.APTMT_ID);
 		data.setContentDescription("" + ds.APTMT_ID);
 
 		data.setOnLongClickListener(new OnLongClickListener() {
@@ -192,11 +159,160 @@ public class StudentAppointmentManager extends Activity {
 
 	}
 
+	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.appointment_context_menu, menu);
+		menu.setHeaderTitle("Context Menu");
+		menu.add(0, v.getId(), 0, "Edit Appointment");
+		menu.add(0, v.getId(), 0, "Cancel Appointment");
+	}
+
+	public void deleteViewFromQueue(int id) {
+		StudentAppointment ds = queue.removeItemWithKey(id);
+		new cancelAppointmentTask(this).execute(ds);
+
+	}
+
+	public boolean onContextItemSelected(MenuItem item) {
+
+		if (item.getTitle().equals("Edit Appointment")) {
+			this.editAppointment(item.getItemId());
+		} else {
+			this.deleteViewFromQueue(item.getItemId());
+		}
+
+		return false;
+
+	}
+
+	private void editAppointment(int itemId) {
+		LinkedList<StudentAppointment> backup = new LinkedList<StudentAppointment>();
+		StudentAppointment apptToEdit = null;
+		backup.addAll(queue.aptmtQueue);
+		for (StudentAppointment ds : backup) {
+			if (ds.APTMT_ID == itemId) {
+				apptToEdit = ds;
+				break;
+			}
+		}
+		new getTutorBlockTask(this).execute(apptToEdit);
+	}
+
+	public class loadAppointmentsFromWebTask extends
+			AsyncTask<String, Void, Void> {
+
+		private ArrayList<StudentAppointment> tempList;
+		Context _context;
+		ProgressDialog p;
+
+		public loadAppointmentsFromWebTask(Context c) {
+			super();
+			p = ProgressDialog.show(c, "", "Loading...", true, false);
+			tempList = new ArrayList<StudentAppointment>();
+			_context = c;
+		}
+
+		public void onPreExecute() {
+			p.show();
+		}
+
+		@Override
+		protected Void doInBackground(String... arg0) {
+
+			List<StudentAppointment> res = API.getInstance()
+					.getAppointmentsForStudent(API.getCurrentUser());
+			System.out.println("res.size() = " + res.size());
+			tempList.addAll(res);
+
+			return null;
+
+		}
+
+		public void onPostExecute(Void res) {
+			queue.aptmtQueue.clear();
+			queue.mirrorQueue.clear();
+			for (StudentAppointment tempAppt : tempList) {
+				queue.addDataSetToQueue(tempAppt);
+			}
+			fillScrollQueue();
+			p.cancel();
+
+		}
+
+	}
+
+	public class cancelAppointmentTask extends
+			AsyncTask<StudentAppointment, Void, Void> {
+
+		Context _context;
+		ProgressDialog p;
+
+		public cancelAppointmentTask(Context c) {
+			super();
+			p = ProgressDialog.show(c, "", "Canceling Appointment...", true,
+					false);
+			_context = c;
+		}
+
+		public void onPreExecute() {
+			p.show();
+		}
+
+		@Override
+		protected Void doInBackground(StudentAppointment... arg0) {
+
+			API.getInstance().cancelStudentAppointment(arg0[0]);
+
+			return null;
+
+		}
+
+		public void onPostExecute(Void res) {
+			p.cancel();
+			fillScrollQueue();
+
+		}
+
+	}
+
+	public class getTutorBlockTask extends
+			AsyncTask<StudentAppointment, Void, Void> {
+
+		Context _context;
+		ProgressDialog p;
+		TutorBlock block;
+		StudentAppointment orig;
+
+		public getTutorBlockTask(Context c) {
+			super();
+			p = ProgressDialog.show(c, "", "Opening Appointment Editor...",
+					true, false);
+			_context = c;
+		}
+
+		public void onPreExecute() {
+			p.show();
+		}
+
+		@Override
+		protected Void doInBackground(StudentAppointment... arg0) {
+			orig = arg0[0];
+			block = API.getInstance().getTutorBlockForTutor(orig.getWithWho());
+
+			return null;
+
+		}
+
+		public void onPostExecute(Void res) {
+			p.cancel();
+			Intent i = new Intent(_context, AppointmentEditor.class);
+			i.putExtra("original", orig);
+			i.putExtra("block", block);
+			startActivity(i);
+
+		}
+
 	}
 
 }

@@ -17,7 +17,7 @@
         android:background="@android:color/transparent"
         android:orientation="vertical"
         tools:ignore="UnusedResources"
-        android:layout_weight = "0.4" >
+        android:layout_weight = "0.45" >
 
         <TextView
             android:id="@+id/tutor_name"
@@ -48,7 +48,7 @@
         android:id="@+id/when"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.6"
+        android:layout_weight="0.55"
         android:background="@android:color/transparent"
         android:gravity="center"
         android:lines="3"

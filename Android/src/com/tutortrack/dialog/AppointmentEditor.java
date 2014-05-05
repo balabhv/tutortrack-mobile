@@ -25,17 +25,17 @@ import com.tutortrack.api.student.StudentAppointment;
 import com.tutortrack.api.student.TutorBlock;
 import com.tutortrack.control.RangeTimePicker;
 
-public class AppointmentCreator extends Activity {
+public class AppointmentEditor extends Activity {
 
-	public class MakeAppointmentTask extends AsyncTask<Void, Void, Void> {
+	public class EditAppointmentTask extends AsyncTask<Void, Void, Void> {
 
 		private Context _context;
 		private ProgressDialog d;
-		private StudentAppointment appt;
+		private boolean success;
 
-		public MakeAppointmentTask(Context c) {
+		public EditAppointmentTask(Context c) {
 			_context = c;
-			d = ProgressDialog.show(_context, "", "Making appointment...",
+			d = ProgressDialog.show(_context, "", "Editing appointment...",
 					true, false);
 		}
 
@@ -45,21 +45,18 @@ public class AppointmentCreator extends Activity {
 
 		@Override
 		protected Void doInBackground(Void... arg0) {
-			appt = API.getInstance().makeAppointmentWithTutor(block.getTutor(),
-					apptDate, apptTime, block.getWhere(), getCheckedSubjects());
+			success = API.getInstance().editStudentAppointment(orig, edited);
 			return null;
 		}
 
 		public void onPostExecute(Void result) {
 			d.cancel();
-			if (appt != null) {
+			if (success) {
 				Intent i = new Intent();
-				i.putExtra("StudentAppointment", appt);
+				i.putExtra("StudentAppointment", edited);
 				setResult(RESULT_OK, i);
-				System.out.println("Result OK");
 			} else {
 				setResult(RESULT_CANCELED);
-				System.out.println("Result Canceled");
 			}
 			finish();
 		}
@@ -74,6 +71,7 @@ public class AppointmentCreator extends Activity {
 	private Button ok, cancel;
 	private ArrayList<CheckBox> subjectCheckBoxes = new ArrayList<CheckBox>();
 	private ArrayList<Subject> subj;
+	private StudentAppointment orig, edited;
 
 	private Calendar apptDate;
 	private Calendar apptTime;
@@ -88,22 +86,31 @@ public class AppointmentCreator extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.make_appointment_dialog);
 
-		block = (TutorBlock) getIntent().getSerializableExtra("data");
+		orig = (StudentAppointment) getIntent()
+				.getSerializableExtra("original");
+		block = (TutorBlock) getIntent().getSerializableExtra("block");
 		tutorNameLbl = (TextView) findViewById(R.id.tutorNameLbl);
-		tutorNameLbl.setText(block.getTutor().getName());
+		tutorNameLbl.setText(orig.getWithWho().getName());
 
 		subjectCheckBoxLayout = (LinearLayout) findViewById(R.id.subjectCheckBoxLayout);
 		dateCalendar = (DatePicker) findViewById(R.id.datePicker);
-
+		dateCalendar.setCalendarViewShown(true);
+		dateCalendar.setSpinnersShown(false);
 		dateCalendar.setMinDate(block.getStartDate().getTimeInMillis());
 		dateCalendar.setMaxDate(block.getEndDate().getTimeInMillis());
 		dateCalendar.setCalendarViewShown(true);
-		dateCalendar.setSpinnersShown(false);
+		dateCalendar.updateDate(orig.getWhen().get(Calendar.YEAR), orig
+				.getWhen().get(Calendar.MONTH),
+				orig.getWhen().get(Calendar.DATE));
 
 		timePicker = (RangeTimePicker) findViewById(R.id.timePicker);
 		timePicker.setIs24HourView(false);
-		timePicker.setMin(block.getStartTime().get(Calendar.HOUR_OF_DAY), block.getStartTime().get(Calendar.MINUTE));
-		timePicker.setMax(block.getEndTime().get(Calendar.HOUR_OF_DAY), block.getEndTime().get(Calendar.MINUTE));
+		timePicker.setMin(block.getStartTime().get(Calendar.HOUR_OF_DAY), block
+				.getStartTime().get(Calendar.MINUTE));
+		timePicker.setMax(block.getEndTime().get(Calendar.HOUR_OF_DAY), block
+				.getEndTime().get(Calendar.MINUTE));
+		timePicker.setCurrentHour(orig.getWhen().get(Calendar.HOUR_OF_DAY));
+		timePicker.setCurrentMinute(orig.getWhen().get(Calendar.MINUTE));
 
 		apptDate = new GregorianCalendar();
 		apptTime = new GregorianCalendar();
@@ -111,6 +118,12 @@ public class AppointmentCreator extends Activity {
 		for (Subject s : block.getSubjects()) {
 			CheckBox feature1 = new CheckBox(this);
 			feature1.setText(s.toString());
+			System.out.println("Subject: " + s.toString());
+			for (Subject s1 : orig.getSubjects()) {
+				if (s1.toString().equalsIgnoreCase(s.toString())) {
+					feature1.setChecked(true);
+				}
+			}
 			subjectCheckBoxes.add(feature1);
 			subjectCheckBoxLayout.addView(feature1);
 		}
@@ -132,7 +145,9 @@ public class AppointmentCreator extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				apptDate.set(dateCalendar.getYear(), dateCalendar.getMonth()+1,
+
+				apptDate.set(dateCalendar.getYear(),
+						dateCalendar.getMonth() + 1,
 						dateCalendar.getDayOfMonth());
 				apptTime.set(Calendar.HOUR_OF_DAY, timePicker.getCurrentHour());
 				apptTime.set(Calendar.MINUTE, timePicker.getCurrentMinute());
@@ -144,12 +159,21 @@ public class AppointmentCreator extends Activity {
 						subj.add(block.getSubjects().get(i));
 					}
 				}
-				
-				if (subj.size() > 0)
-					new MakeAppointmentTask(AppointmentCreator.this).execute();
-				else
-					Toast.makeText(AppointmentCreator.this, "No subjects selected", Toast.LENGTH_SHORT).show();
 
+				if (subj.size() > 0) {
+					Calendar when = new GregorianCalendar();
+					when.set(apptDate.get(Calendar.YEAR),
+							apptDate.get(Calendar.MONTH),
+							apptDate.get(Calendar.DATE),
+							apptTime.get(Calendar.HOUR_OF_DAY),
+							apptTime.get(Calendar.MINUTE),
+							apptTime.get(Calendar.SECOND));
+					edited = new StudentAppointment(when, subj, orig
+							.getWithWho(), orig.getWhere());
+					new EditAppointmentTask(AppointmentEditor.this).execute();
+				} else {
+					Toast.makeText(AppointmentEditor.this, "No subjects selected", Toast.LENGTH_SHORT).show();
+				}
 			}
 		});
 

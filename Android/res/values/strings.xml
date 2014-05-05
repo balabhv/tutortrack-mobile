@@ -20,6 +20,7 @@
     <string name="filter">Filter</string>
     <string name="view_tutors">View Tutors</string>
     <string name="filter_type">Filter Type</string>
+    <string name="logout_string">Logout</string>
 
     <string-array name="filter_type_array">
         <item>Location</item>
@@ -27,9 +28,9 @@
     </string-array>
     
     <string-array name="location_array">
-        <item>North</item>
-        <item>South</item>
-        <item>East</item>
+        <item>NORTH</item>
+        <item>SOUTH</item>
+        <item>EAST</item>
         <item>ICC</item>
     </string-array>
     
