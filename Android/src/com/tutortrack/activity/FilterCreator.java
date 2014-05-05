@@ -118,7 +118,6 @@ public class FilterCreator extends Activity {
 				temp.add(f);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return temp;
@@ -289,8 +288,9 @@ public class FilterCreator extends Activity {
 	private void addFilterOfTypeFromPrefs(final int pos) {
 		final View v = View.inflate(this.getApplicationContext(),
 				R.layout.filter_element, null);
-
-		Filter f = filters.get(pos);
+		Filter f = new Filter();
+		if (pos < filters.size())
+			f = filters.get(pos);
 
 		v.setTag((f.getType() == FilterType.LOCATION) ? FILTER_TYPE_LOCATION
 				: FILTER_TYPE_SUBJECT);
@@ -306,12 +306,12 @@ public class FilterCreator extends Activity {
 			public void onClick(View view) {
 
 				if (((Integer) v.getTag()).intValue() == FILTER_TYPE_LOCATION) {
-					locationCount--;
+					locationCount = 0;
 					SharedPreferences.Editor editor = prefs.edit();
 					editor.putInt("location_count", locationCount);
 					editor.commit();
 				} else if (((Integer) v.getTag()).intValue() == FILTER_TYPE_SUBJECT) {
-					subjectCount--;
+					subjectCount = 0;
 					SharedPreferences.Editor editor = prefs.edit();
 					editor.putInt("subject_count", subjectCount);
 					editor.commit();
