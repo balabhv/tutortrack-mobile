@@ -34,11 +34,13 @@ public class TutorMain extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				// TODO Auto-generated method stub
+				// TODO Auto-generated method stub refer tutor management make object Serializable
+				// View existing timeslot, create timeslot, reschedule/delete timesslot on longpress
+	startActivity(new Intent(getApplicationContext(), TimeslotViewer.class));
+	
 				
 			}
 		});
-		
 		manageAppointmentsButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
